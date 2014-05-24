@@ -1,33 +1,32 @@
 'use strict';
 
 var path = {
-	scripts: [
-		'**/*.js',
+  scripts: [
+    '**/*.js',
     '!js/lib/**',
-		'!node_modules/**',
+    '!node_modules/**',
     '!bower_components/**'
-	]
+  ]
 };
 
 var gulp = require('gulp');
 var plugins = require('gulp-load-plugins')();
 
 gulp.task('default', ['jscs', 'jshint'], function() {
-	// place code for your default task here
+  // place code for your default task here
 });
 
 gulp.task('jscs', function() {
-	return gulp.src(path.scripts)
-	.pipe(plugins.jscs());
+  return gulp.src(path.scripts)
+  .pipe(plugins.jscs());
 });
 
 gulp.task('jshint', function() {
-	return gulp.src(path.scripts)
-	.pipe(plugins.jshint('.jshintrc'))
-	.pipe(plugins.jshint.reporter('jshint-stylish'));
+  return gulp.src(path.scripts)
+  .pipe(plugins.jshint('.jshintrc'))
+  .pipe(plugins.jshint.reporter('jshint-stylish'));
 });
 
 gulp.task('watch', function() {
-	//gulp.watch(path.scripts, ['jscs']);
-	gulp.watch(path.scripts, ['jshint']);
+  gulp.watch(path.scripts, ['jshint', 'jscs']);
 });

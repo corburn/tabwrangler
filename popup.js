@@ -28,12 +28,11 @@ require(['require-config'], function() {
       return $faviconCol;
     };
 
-    Popup.Util.secondsToMinutes =  function (seconds) {
+    Popup.Util.secondsToMinutes =  function(seconds) {
       var s = seconds % 60;
-      s = s > 10 ? String(s) : "0" + String(s);
-      return String(Math.floor(seconds / 60)) + ":" + s;
+      s = s > 10 ? String(s) : '0' + String(s);
+      return String(Math.floor(seconds / 60)) + ':' + s;
     };
-
 
     Popup.optionsTab = {};
     /**
@@ -67,8 +66,7 @@ require(['require-config'], function() {
       Popup.optionsTab.loadOptions();
     };
 
-
-    Popup.optionsTab.saveOption = function (key, value) {
+    Popup.optionsTab.saveOption = function(key, value) {
 
       var errors = [];
       $('#status').html();
@@ -79,7 +77,6 @@ require(['require-config'], function() {
         errors.push(err);
       }
 
-
       $('#status').removeClass();
       $('#status').css('visibility', 'visible');
       $('#status').css('opacity', '100');
@@ -87,10 +84,10 @@ require(['require-config'], function() {
       if (errors.length === 0) {
         $('#status').html('Saving...');
         $('#status').addClass('alert-success').addClass('alert');
-        $('#status').delay(50).animate({opacity:0});
+        $('#status').delay(50).animate({opacity: 0});
       } else {
         var $errorList = $('<ul></ul>');
-        for (var i=0; i< errors.length; i++) {
+        for (var i = 0; i < errors.length; i++) {
           $errorList.append('<li>' + errors[i].message + '</li>');
         }
         $('#status').append($errorList).addClass('alert-error').addClass('alert');
@@ -98,7 +95,7 @@ require(['require-config'], function() {
       return false;
     };
 
-    Popup.optionsTab.loadOptions = function () {
+    Popup.optionsTab.loadOptions = function() {
       $('#minutesInactive').val(settings.get('minutesInactive'));
       $('#minTabs').val(settings.get('minTabs'));
       $('#maxTabs').val(settings.get('maxTabs'));
@@ -108,7 +105,6 @@ require(['require-config'], function() {
       if (settings.get('showBadgeCount') !== false) {
         $('#showBadgeCount').attr('checked', true);
       }
-
 
       $('#whitelist').addOption = function(key, val) {
         this.append(
@@ -132,8 +128,7 @@ require(['require-config'], function() {
       $wlInput.on('input', function() {
         if (isValid($wlInput.val())) {
           $wlAdd.removeAttr('disabled');
-        }
-        else {
+        } else {
           $wlAdd.attr('disabled', 'disabled');
         }
       });
@@ -155,7 +150,7 @@ require(['require-config'], function() {
     Popup.optionsTab.buildWLTable = function(whitelist) {
       var $wlTable = $('table#whitelist tbody');
       $wlTable.html('');
-      for (var i=0; i < whitelist.length; i++) {
+      for (var i = 0; i < whitelist.length; i++) {
         $tr = $('<tr></tr>');
         $urlTd = $('<td></td>').text(whitelist[i]);
         $deleteLink = $('<a class="deleteLink" href="#">Remove</a>')
@@ -189,19 +184,18 @@ require(['require-config'], function() {
       tabmanager.unlockTab();
     };
 
-
     /**
     * @param tabs
     * @return {Boolean}
     */
-    Popup.activeTab.buildTabLockTable = function (tabs) {
+    Popup.activeTab.buildTabLockTable = function(tabs) {
       var self = this;
 
       var tabNum = tabs.length;
       var $tbody = $('#activeTabs tbody');
       $tbody.html('');
 
-      var lockedIds = settings.get("lockedIds");
+      var lockedIds = settings.get('lockedIds');
 
       for (var i = 0; i < tabNum; i++) {
         console.log('wtf');
@@ -213,16 +207,15 @@ require(['require-config'], function() {
         var $tr = $('<tr></tr>');
         $tr.attr('data-tabid', tabs[i].id);
 
-
         // Checkbox to lock it.
         //@todo: put the handler in its own function
         var $lock_box = $('<input />')
         .attr('type', 'checkbox')
-        .attr('id', "cb" + tabs[i].id)
+        .attr('id', 'cb' + tabs[i].id)
         .attr('value', tabs[i].id)
         .attr('checked', tabIsLocked)
         .attr('disabled', tabIsPinned || tabWhitelistMatch)
-        .click(function () {
+        .click(function() {
           if (this.checked) {
             self.saveLock(parseInt(this.value));
           } else {
@@ -304,19 +297,18 @@ require(['require-config'], function() {
         return;
       });
 
-      if(location.search !== "?foo") {
-        location.search = "?foo";
+      if (location.search !== '?foo') {
+        location.search = '?foo';
         throw new Error;  // load everything on the next page;
         // stop execution on this page
       }
 
-      $('.corral-search').keyup(_.debounce(
-        function() {
-          var keyword = $(this).val();
-          tabmanager.searchTabs(self.buildTable, [tabmanager.filters.keyword(keyword)]);
-        }, 200));
+      $('.corral-search').keyup(_.debounce(function() {
+        var keyword = $(this).val();
+        tabmanager.searchTabs(self.buildTable, [tabmanager.filters.keyword(keyword)]);
+      }, 200));
 
-        $('.corral-search').delay(1000).focus();
+      $('.corral-search').delay(1000).focus();
     };
 
     Popup.corralTab.buildTable = function(closedTabs) {
@@ -347,7 +339,7 @@ require(['require-config'], function() {
 
       function getGroup(time) {
         var limit, text, i;
-        for (i=0; i < separations.length; i++) {
+        for (i = 0; i < separations.length; i++) {
           limit = separations[i][0];
           text = separations[i][1];
           if (limit < time) {
@@ -394,37 +386,39 @@ require(['require-config'], function() {
 
         $tr.append($faviconCol);
 
-        // Page title.
+        /*
+        *        Page title.
+        *
+        *        @todo: Add this logic back in:
+        *        if ( urls[i] == 'chrome://newtab/') {
+        *          a_title.href = 'javascript:openNewTab();';
+        *        } else  if ( urls[i] == 'chrome://extensions/') {
+        *          a_title.href = 'javascript:openExtTab();';
+        *        } else {
+        *          a_title.href = urls[i];
+        *        }
+        */
 
-        // @todo: Add this logic back in:
-        //    if ( urls[i] == "chrome://newtab/") {
-          //      a_title.href = "javascript:openNewTab();";
-          //    } else  if ( urls[i] == "chrome://extensions/") {
-            //      a_title.href = "javascript:openExtTab();";
-            //    } else {
-              //      a_title.href = urls[i];
-              //    }
+        $link = $('<a target="_blank" href="' + tab.url + '">' + tab.title.shorten(70) + '</a>');
 
-              $link = $('<a target="_blank" href="' + tab.url + '">' + tab.title.shorten(70) + '</a>');
+        // Create a new tab when clicked in the background
+        // Remove from the closedTabs list.
+        $link.click(function() {
+          chrome.tabs.create({active: false, url: $(this).attr('href')});
+          tabmanager.closedTabs.removeTab($(this).parent().parent().data('tabid'));
+          $(this).parent().parent().remove();
+          return false;
+        });
 
-              // Create a new tab when clicked in the background
-              // Remove from the closedTabs list.
-              $link.click(function() {
-                chrome.tabs.create({active:false, url: $(this).attr('href')});
-                tabmanager.closedTabs.removeTab($(this).parent().parent().data('tabid'));
-                $(this).parent().parent().remove();
-                return false;
-              });
-
-              $tr.append($('<td></td/>').append($link));
-              // Url - not sure if we want this.
-              // $tr.append($('<td>' + tab.url.shorten(70) + '</td>'));
-              // time ago.
-              $tr.append('<td>' + $.timeago(tab.closedAt) + '</td>');
-              $tbody.append($tr);
+        $tr.append($('<td></td/>').append($link));
+        // Url - not sure if we want this.
+        // $tr.append($('<td>' + tab.url.shorten(70) + '</td>'));
+        // time ago.
+        $tr.append('<td>' + $.timeago(tab.closedAt) + '</td>');
+        $tbody.append($tr);
       }
 
-      /** 
+      /**
       * Testing code to make fake tags
 
       closedTabs = [];
@@ -454,7 +448,6 @@ require(['require-config'], function() {
     Popup.corralTab.filterByKeyword = function() {
       var keyword = $(this).val();
     };
-
 
     PauseButton = {};
 
@@ -501,7 +494,7 @@ require(['require-config'], function() {
         //@todo: make that button work on lock tab.
       });
 
-      $('a[data-toggle="tab"]').on('show', function (e) {
+      $('a[data-toggle="tab"]').on('show', function(e) {
         var tabId = e.target.hash;
         switch (tabId) {
           case '#tabOptions':
