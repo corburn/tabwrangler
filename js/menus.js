@@ -5,7 +5,7 @@ define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) 
    */
   ContextMenuHandler = {
     lockActionId: null,
-    createContextMenus: function () {
+    createContextMenus: function() {
       var lockTabAction = function(onClickData, selectedTab) {
         tabmanager.lockTab(selectedTab.id);
       };
@@ -25,19 +25,19 @@ define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) 
 
       var lockTab = {
         'type': 'checkbox',
-        'title': "Never close this tab",
+        'title': 'Never close this tab',
         'onclick': lockTabAction
       };
 
       var lockDomain = {
         'type': 'checkbox',
-        'title': "Never close anything on this domain",
+        'title': 'Never close anything on this domain',
         'onclick': lockDomainAction
       };
 
       var corralTab = {
         'type': 'normal',
-        'title': "Close tab and save URL immediately",
+        'title': 'Close tab and save URL immediately',
         'onclick': corralTabAction
       };
 
@@ -45,7 +45,7 @@ define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) 
       this.lockDomainId = chrome.contextMenus.create(lockDomain);
       chrome.contextMenus.create(corralTab);
     },
-    
+
     updateContextMenus: function(tabId) {
       self = this;
       // Little bit of a kludge, would be nice to be DRY here but this was simpler.
@@ -55,7 +55,7 @@ define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) 
           var currentDomain = util.getDomain(tab.url);
           chrome.contextMenus.update(self.lockDomainId, {'title': 'Never close anything on ' + currentDomain});
         } catch (e) {
-          console.log(tab, "Error in updating menu");
+          console.log(tab, 'Error in updating menu');
           throw e;
         }
       });

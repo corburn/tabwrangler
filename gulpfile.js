@@ -2,7 +2,7 @@
 
 var path = {
 	scripts: [
-		'*/*.js',
+		'**/*.js',
 		'!node_modules/**'
 	]
 };
@@ -25,3 +25,6 @@ gulp.task('jshint', function() {
 	.pipe(plugins.jshint.reporter('jshint-stylish'));
 });
 
+gulp.task('watch', function() {
+	gulp.watch(path.scripts, ['jscs']);
+});
