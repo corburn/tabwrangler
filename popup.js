@@ -3,12 +3,12 @@ require([
   console.log(_);
 
 var TW = chrome.extension.getBackgroundPage().TW;
-console.log(TW);
+console.log('TW', TW);
 
 // Unpack TW.
 var tabmanager = TW.tabmanager;
 var settings = TW.settings;
-console.log(settings);
+console.log('TW.settings', settings);
 
 Popup = {};
 Popup.Util = {};

@@ -22,7 +22,8 @@ Array.prototype.remove = function(from, to) {
   return this.push.apply(this, rest);
 };
 
-Stack = (function() {
+// TODO(jt) not used
+var Stack = (function() {
   /**
   * Subclassed JavaScript 1.5 Array for every browser.
   * @author      Andrea Giammarchi
@@ -34,8 +35,8 @@ Stack = (function() {
   */
   function Stack() {
     this.push.apply(this, Array.apply(null, arguments));
-  };
-  Stack.prototype = new Array;
+  }
+  Stack.prototype = [];
   Stack.prototype.length = 0;
   if (!new Stack(1).length){
     Stack.prototype = {length : 0};
@@ -46,17 +47,17 @@ Stack = (function() {
     ) {
       Stack.prototype[split[--length]] = Array.prototype[split[length]];
     }
-  };
+  }
   var toString = Object.prototype.toString,
   slice   = Array.prototype.slice,
   concat  = Array.prototype.concat
   ;
   Stack.prototype.concat = function() {
     for (var Array = this.slice(0), i = 0, length = arguments.length; i < length; ++i){
-      if (toString.call(arguments[i]) != '[object Array]') {
-        arguments[i] = typeof arguments[i] == 'object' ? slice.call(arguments[i]) : [arguments[i]];
+      if (toString.call(arguments[i]) !== '[object Array]') {
+        arguments[i] = typeof arguments[i] === 'object' ? slice.call(arguments[i]) : [arguments[i]];
       }
-    };
+    }
     Array.push.apply(Array, concat.apply([], arguments));
     return Array;
   };

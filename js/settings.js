@@ -3,7 +3,7 @@ define(['tabmanager'], function(tabmanager) {
   /**
   * @type {Object}
   */
-  Settings = {
+  var Settings = {
     ititialized: false,
     defaults: {
       checkInterval: 5000, // How often we check for old tabs.
@@ -107,7 +107,7 @@ define(['tabmanager'], function(tabmanager) {
   */
   Settings.setwhitelist = function(value) {
     // It should be an array, but JS is stupid: http://javascript.crockford.com/remedial.html
-    if (typeof(value) != 'object') {
+    if (typeof(value) !== 'object') {
       throw new Error('Whitelist should be an array, ' + typeof(value) + ' given');
     }
 
@@ -127,14 +127,14 @@ define(['tabmanager'], function(tabmanager) {
   };
 
   /**
-  * Either calls a getter function or retunrs directly from storage.
+  * Either calls a getter function or returns directly from storage.
   * @param key
   * @param fx
   *  Callback function after value is received.
   * @return {*}
   */
   Settings.get = function(key, fx) {
-    if (typeof this[key] == 'function') {
+    if (typeof this[key] === 'function') {
       return this[key]();
     }
     return this.cache[key];
@@ -159,7 +159,7 @@ define(['tabmanager'], function(tabmanager) {
   */
   Settings.set = function(key, value) {
     // Magic setter functions are set{fieldname}
-    if (typeof this['set' + key] == 'function') {
+    if (typeof this['set' + key] === 'function') {
       return this['set' + key](value);
     }
     Settings.setValue(key, value);

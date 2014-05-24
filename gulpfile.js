@@ -3,7 +3,9 @@
 var path = {
 	scripts: [
 		'**/*.js',
-		'!node_modules/**'
+    '!js/lib/**',
+		'!node_modules/**',
+    '!bower_components/**'
 	]
 };
 
@@ -26,5 +28,6 @@ gulp.task('jshint', function() {
 });
 
 gulp.task('watch', function() {
-	gulp.watch(path.scripts, ['jscs']);
+	//gulp.watch(path.scripts, ['jscs']);
+	gulp.watch(path.scripts, ['jshint']);
 });
