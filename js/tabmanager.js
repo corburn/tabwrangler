@@ -1,9 +1,11 @@
+'use strict';
+
 define(function(require, exports, modules) {
   /**
   * Stores the tabs in a separate variable to log Last Accessed time.
   * @type {Object}
   */
-  TabManager = {
+  var TabManager = {
     tabTimes: {}, // An array of tabId => timestamp
     closedTabs: []
   };
@@ -20,11 +22,11 @@ define(function(require, exports, modules) {
   *  Tab ID or Tab object.
   */
   TabManager.updateLastAccessed = function(tabId) {
-    if (typeof tabId == 'object') {
+    if (typeof tabId === 'object') {
       tabId = tabId.id;
     }
 
-    if (typeof tabId != 'number') {
+    if (typeof tabId !== 'number') {
       console.log('Error: ' + tabId.toString() + ' is not an number', tabId);
       return;
     }
@@ -46,7 +48,7 @@ define(function(require, exports, modules) {
   * @return {Array}
   */
   TabManager.getOlderThen = function(time) {
-    var ret = Array();
+    var ret = [];
     for (var i in this.tabTimes) {
       if (this.tabTimes.hasOwnProperty(i)) {
         if (!time || this.tabTimes[i] < time) {
@@ -105,15 +107,15 @@ define(function(require, exports, modules) {
   // Matches when the URL is exactly matching
   TabManager.filters.exactUrl = function(url) {
     return function(tab) {
-      return tab.url == url;
+      return tab.url === url;
     };
   };
 
   TabManager.closedTabs.init = function() {
     var self = this;
     chrome.storage.local.get('savedTabs', function(items) {
-      if (typeof items['savedTabs'] != 'undefined') {
-        self.tabs = items['savedTabs'];
+      if (typeof items.savedTabs !== 'undefined') {
+        self.tabs = items.savedTabs;
       }
     });
   };
@@ -127,7 +129,7 @@ define(function(require, exports, modules) {
   // @todo: move to filter system for consistency
   TabManager.closedTabs.findPositionById = function(id) {
     for (var i = 0; i < this.tabs.length; i++) {
-      if (this.tabs[i].id == id) {
+      if (this.tabs[i].id === id) {
         return i;
       }
     }
@@ -162,7 +164,7 @@ define(function(require, exports, modules) {
   TabManager.getWhitelistMatch = function(url) {
     var whitelist = TW.settings.get('whitelist');
     for (var i = 0; i < whitelist.length; i++) {
-      if (url.indexOf(whitelist[i]) != -1) {
+      if (url.indexOf(whitelist[i]) !== -1) {
         return whitelist[i];
       }
     }
@@ -175,7 +177,7 @@ define(function(require, exports, modules) {
 
   TabManager.isLocked = function(tabId) {
     var lockedIds = TW.settings.get('lockedIds');
-    if (lockedIds.indexOf(tabId) != -1) {
+    if (lockedIds.indexOf(tabId) !== -1) {
       return true;
     }
     return false;
@@ -184,7 +186,7 @@ define(function(require, exports, modules) {
   TabManager.lockTab = function(tabId) {
     var lockedIds = TW.settings.get('lockedIds');
 
-    if (tabId > 0 && lockedIds.indexOf(tabId) == -1) {
+    if (tabId > 0 && lockedIds.indexOf(tabId) === -1) {
       lockedIds.push(tabId);
     }
     TW.settings.set('lockedIds', lockedIds);

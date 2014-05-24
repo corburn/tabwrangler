@@ -1,3 +1,5 @@
+'use strict';
+
 var TW = chrome.extension.getBackgroundPage().TW;
 
 $(document).ready(function() {
@@ -9,7 +11,7 @@ $(document).ready(function() {
     decode = function(s) { return decodeURIComponent(s.replace(pl, ' ')); },
     query  = window.location.search.substring(1);
 
-    while (match = search.exec(query)) {
+    while ((match = search.exec(query))) {
       urlParams[decode(match[1])] = decode(match[2]);
     }
   })();
@@ -17,18 +19,18 @@ $(document).ready(function() {
   var content = 'Empty notification.  Something went wrong here!';
   var title = 'Tab Wrangler';
 
-  if (typeof urlParams['title'] != 'undefined') {
-    title = urlParams['title'];
+  if (typeof urlParams.title !== 'undefined') {
+    title = urlParams.title;
   }
 
-  if (typeof urlParams['message'] != 'undefined') {
-    content = urlParams['message'];
+  if (typeof urlParams.message !== 'undefined') {
+    content = urlParams.message;
 
-  } else if (typeof urlParams['file'] != 'undefined') {
-    $.get('notifications/' + urlParams['file'], {}, function(data) {content = data});
+  } else if (typeof urlParams.file !== 'undefined') {
+    $.get('notifications/' + urlParams.file, {}, function(data) {content = data;});
   }
 
   $('#main').html(content);
-  $('#title').text(title)
+  $('#title').text(title);
 
 });

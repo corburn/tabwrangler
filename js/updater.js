@@ -1,16 +1,18 @@
+'use strict';
+
 define(function(require) {
 
   /**
   * Handles updates between versions of the extension.
   */
-  Updater = {
+  var Updater = {
     updates: {},
     firstInstall: function() {
       var notification = window.webkitNotifications.createNotification(
         'img/icon48.png',                      // The image.
         'Tab Wrangler is installed',
-        'Tab wrangler is now auto-closing tabs after ' + TW.settings.get('minutesInactive') + ' minutes. \n\
-          To change this setting, click on the new icon on your URL bar.'
+        'Tab wrangler is now auto-closing tabs after ' + TW.settings.get('minutesInactive') + ' minutes. \n' +
+          'To change this setting, click on the new icon on your URL bar.'
       );
       notification.show();
     },
@@ -27,19 +29,19 @@ define(function(require) {
 
         // If items[version] is undefined, the app has either not been installed,
         // or it is an upgrade from when we were not storing the version.
-        if (typeof items['version'] != 'undefined') {
-          currentVersion = items['version'];
+        if (typeof items.version !== 'undefined') {
+          currentVersion = items.version;
         }
 
         if (!currentVersion) {
           // Hardcoded here to make the code simpler.
           // This is the first update for users upgrading from when we didn't store
           // a version.
-          if (localStorage['minutes_inactive']) {
+          if (localStorage.minutes_inactive) {
             // This is the ancient 1.x version
             this.updates[2.1].fx();
           }
-          if (localStorage['minutesInactive']) {
+          if (localStorage.minutesInactive) {
             // This is an update from the 2.1 version
             currentVersion = 2.1;
           }
@@ -64,12 +66,12 @@ define(function(require) {
             }
 
             // This is the version we are updating to.
-            if (i == manifestVersion) {
+            if (i === manifestVersion) {
               // Post 2.0 updates.
               chrome.storage.sync.set({
                 'version': manifestVersion
               },function() {
-                if (typeof self.updates[i].finished == 'function') {
+                if (typeof self.updates[i].finished === 'function') {
                   self.updates[i].finished();
                 }
               });
@@ -120,7 +122,7 @@ define(function(require) {
 
   Updater.launchNotification = function(id, notification, addButtons) {
     var cb = function() {};
-    addButtons = typeof(addButtons) == 'undefined' ? false : true;
+    addButtons = typeof(addButtons) === 'undefined' ? false : true;
     if (addButtons) {
       this.addCommonButtons(notification);
       chrome.notifications.onButtonClicked.addListener(this.commonButtonHandler);
@@ -149,7 +151,7 @@ define(function(require) {
         if (map.hasOwnProperty(i)) {
           oldValue = localStorage[i];
           if (oldValue) {
-            if (map[i] != null) {
+            if (map[i] !== null) {
               localStorage[map[i]] = oldValue;
             }
             localStorage.removeItem(i);
@@ -180,13 +182,13 @@ define(function(require) {
 
     finished: function() {
 
-      var updateTxt = '<strong>Big changes:</strong>'
-      + '<ul>'
-      + '<li> Resets timer when minTabs is reached <span class="label label-success">Feature</span></li>'
-      + '<li> Syncs settings between computers <span class="label label-success">Feature</span></li>'
-      + '<li> Right-click to lock tab <span class="label label-success">Feature</span></li>'
-      + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes#2.2"> See all changes</a></li>'
-      + '</ul>';
+      var updateTxt = '<strong>Big changes:</strong>' +
+      '<ul>' +
+      '<li> Resets timer when minTabs is reached <span class="label label-success">Feature</span></li>' +
+      '<li> Syncs settings between computers <span class="label label-success">Feature</span></li>' +
+      '<li> Right-click to lock tab <span class="label label-success">Feature</span></li>' +
+      '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes#2.2"> See all changes</a></li>' +
+      '</ul>';
 
       var notification = window.webkitNotifications.createHTMLNotification(
         'notification.html?title=Version 2.2&message=' + updateTxt
@@ -202,21 +204,20 @@ define(function(require) {
 
     finished: function() {
 
-      var updateTxt = '<strong>Minor release:</strong>'
-      + '<ul>'
-      + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
-      + '<li> Fixes version requirement for (Chrome 20+ required) <span class="label label-error">Bug</span></li>'
-      + '<li> Adds a search box to Tab Corral <span class="label label-success">Feature</span></li>'
-      + '<li> Various consmetic improvements <span class="label label-success">Feature</span></li>'
-
-      + '</ul>';
+      var updateTxt = '<strong>Minor release:</strong>' +
+      '<ul>' +
+      '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>' +
+      '<li> Fixes version requirement for (Chrome 20+ required) <span class="label label-error">Bug</span></li>' +
+      '<li> Adds a search box to Tab Corral <span class="label label-success">Feature</span></li>' +
+      '<li> Various consmetic improvements <span class="label label-success">Feature</span></li>' +
+      '</ul>';
 
       var notification = window.webkitNotifications.createHTMLNotification(
         'notification.html?title=Version 2.3&message=' + updateTxt
       );
       notification.show();
     }
-  }
+  };
 
   Updater.updates[2.4] = {
     fx: function() {
@@ -225,21 +226,21 @@ define(function(require) {
 
     finished: function() {
 
-      var updateTxt = '<strong>New features!:</strong>'
-      + '<ul>'
-      + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
-      + '<li> Tabs now open in background <span class="label label-success">Feature</span></li>'
-      + '<li> Tabs are grouped by time closed - restore multiple <span class="label label-success">Feature</span></li>'
-      + '<li> Tab lock counter counts down <span class="label label-success">Feature</span></li>'
-      + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a> <span class="label label-info">Info</span></li>'
-      + '</ul>';
+      var updateTxt = '<strong>New features!:</strong>' +
+      '<ul>' +
+      '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>' +
+      '<li> Tabs now open in background <span class="label label-success">Feature</span></li>' +
+      '<li> Tabs are grouped by time closed - restore multiple <span class="label label-success">Feature</span></li>' +
+      '<li> Tab lock counter counts down <span class="label label-success">Feature</span></li>' +
+      '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a> <span class="label label-info">Info</span></li>' +
+      '</ul>';
 
       var notification = window.webkitNotifications.createHTMLNotification(
         'notification.html?title=Version 2.4&message=' + updateTxt
       );
       notification.show();
     }
-  }
+  };
 
   Updater.updates[2.5] = {
     fx: function() {
@@ -248,20 +249,20 @@ define(function(require) {
 
     finished: function() {
 
-      var updateTxt = '<strong>Minor release:</strong>'
-      + '<ul>'
-      + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
-      + '<li> Fixed error handling on options form <span class="label label-error">Bug</span></li>'
-      + '<li> Clear link was broken<span class="label label-error">Bug</span></li>'
-      + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>'
-      + '</ul>';
+      var updateTxt = '<strong>Minor release:</strong>' +
+      '<ul>' +
+      '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>' +
+      '<li> Fixed error handling on options form <span class="label label-error">Bug</span></li>' +
+      '<li> Clear link was broken<span class="label label-error">Bug</span></li>' +
+      '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>' +
+      '</ul>';
 
       var notification = window.webkitNotifications.createHTMLNotification(
         'notification.html?title=Version 2.5&message=' + updateTxt
       );
       notification.show();
     }
-  }
+  };
 
   Updater.updates[2.6] = {
     fx: function() {
@@ -270,12 +271,12 @@ define(function(require) {
 
     finished: function() {
 
-      var updateTxt = '<strong>Critical bug fix:</strong>'
-      + '<ul>'
-      + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
-      + '<li> Syntax error in updater caused new installs to fail <span class="label label-error">Bug</span></li>'
-      + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>'
-      + '</ul>';
+      var updateTxt = '<strong>Critical bug fix:</strong>' +
+      '<ul>' +
+      '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>' +
+      '<li> Syntax error in updater caused new installs to fail <span class="label label-error">Bug</span></li>' +
+      '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>' +
+      '</ul>';
 
       var notification = window.webkitNotifications.createHTMLNotification(
         'notification.html?title=Version 2.6&message=' + updateTxt
@@ -291,14 +292,14 @@ define(function(require) {
 
     finished: function() {
 
-      var updateTxt = '<strong>Updates</strong>'
-      + '<ul>'
-      + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
-      + '<li> Right click on page to immediately close and save a tab. <span class="label label-success">Feature</span></li>'
-      + '<li> Added a pause feature <span class="label label-success">Feature</span></li>'
-      + '<li> Restoring tabs w/o using TabWrangler now removes them from Corral <span class="label label-error">Bug</span></li>'
-      + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>'
-      + '</ul>';
+      var updateTxt = '<strong>Updates</strong>' +
+      '<ul>' +
+      '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>' +
+      '<li> Right click on page to immediately close and save a tab. <span class="label label-success">Feature</span></li>' +
+      '<li> Added a pause feature <span class="label label-success">Feature</span></li>' +
+      '<li> Restoring tabs w/o using TabWrangler now removes them from Corral <span class="label label-error">Bug</span></li>' +
+      '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>' +
+      '</ul>';
 
       var notification = window.webkitNotifications.createHTMLNotification(
         'notification.html?title=Version 2.8&message=' + updateTxt
@@ -313,12 +314,12 @@ define(function(require) {
     },
 
     finished: function() {
-      var updateTxt = '<strong>Updates</strong>'
-      + '<ul>'
-      + '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>'
-      + '<li> Tabs were getting cleared at quit, even when setting was on. <span class="label label-error">Bug</span></li>'
-      + '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>'
-      + '</ul>';
+      var updateTxt = '<strong>Updates</strong>' +
+      '<ul>' +
+      '<li> <a target="_blank" href="http://www.jacobsingh.name/tabwrangler/release-notes">See all changes</a></li>' +
+      '<li> Tabs were getting cleared at quit, even when setting was on. <span class="label label-error">Bug</span></li>' +
+      '<li> <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews"> Review tab wrangler!</a></li>' +
+      '</ul>';
 
       var notification = window.webkitNotifications.createHTMLNotification(
         'notification.html?title=Version 2.9&message=' + updateTxt
@@ -326,7 +327,7 @@ define(function(require) {
       notification.show();
 
     }
-  }
+  };
 
   Updater.updates[3.1] = {
     fx: function() {
@@ -343,7 +344,7 @@ define(function(require) {
       notification.items.push({title: 'Fix', message: 'Fixed display issue with timer after pause'});
       Updater.launchNotification('3.1', notification, true);
     }
-  }
+  };
 
   return Updater;
 

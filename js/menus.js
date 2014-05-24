@@ -1,9 +1,11 @@
+'use strict';
+
 define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) {
   console.log(util);
   /**
    * Creates and updates context menus.
    */
-  ContextMenuHandler = {
+  var ContextMenuHandler = {
     lockActionId: null,
     createContextMenus: function() {
       var lockTabAction = function(onClickData, selectedTab) {
