@@ -1,0 +1,26 @@
+{
+  "name": "tabwrangler",
+  "version": "3.1",
+  "homepage": "https://github.com/corburn/tabwrangler",
+  "authors": [
+    "Jason Travis <JasonTravis@nau.edu>"
+  ],
+  "description": "google chrome extension to close unused tabs at a user defined time",
+  "main": "main.js",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.1",
+    "underscore": "~1.6.0",
+    "bootstrap": "~3.1.1",
+    "jquery-timeago": "~1.4.1",
+    "requirejs": "~2.1.11"
+  }
+}
