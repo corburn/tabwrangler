@@ -2,17 +2,21 @@
 
 var path = {
 	scripts: [
-	'**/*.js',
-	'!node_modules/**'
+		'*/*.js',
+		'!node_modules/**'
 	]
 };
 
 var gulp = require('gulp');
-var gulpLoadPlugins = require("gulp-load-plugins");
-var plugins = require("gulp-load-plugins")();
+var plugins = require('gulp-load-plugins')();
 
-gulp.task('default', ['jshint'], function() {
+gulp.task('default', ['jscs', 'jshint'], function() {
 	// place code for your default task here
+});
+
+gulp.task('jscs', function() {
+	return gulp.src(path.scripts)
+	.pipe(plugins.jscs());
 });
 
 gulp.task('jshint', function() {
@@ -20,3 +24,4 @@ gulp.task('jshint', function() {
 	.pipe(plugins.jshint('.jshintrc'))
 	.pipe(plugins.jshint.reporter('jshint-stylish'));
 });
+

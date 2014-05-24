@@ -18,6 +18,7 @@
   "homepage": "https://github.com/corburn/tabwrangler",
   "devDependencies": {
     "gulp": "^3.6.2",
+    "gulp-jscs": "^0.5.0",
     "gulp-jshint": "^1.6.1",
     "gulp-load-plugins": "^0.5.1",
     "jshint-stylish": "^0.2.0"
