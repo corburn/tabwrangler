@@ -27,10 +27,10 @@ $(document).ready(function() {
     content = urlParams.message;
 
   } else if (typeof urlParams.file !== 'undefined') {
-    $.get('notifications/' + urlParams.file, {}, function(data) {content = data});
+    $.get('notifications/' + urlParams.file, {}, function(data) {content = data;});
   }
 
   $('#main').html(content);
-  $('#title').text(title)
+  $('#title').text(title);
 
 });

@@ -1,3 +1,5 @@
+/* global _ */
+
 'use strict';
 
 // Declare this global namespace so it can be used from popup.js
@@ -26,6 +28,7 @@ require(['require-config'], function() {
       // Tabs which have been locked via the checkbox.
       var lockedIds = settings.get('lockedIds');
       var toCut = tabmanager.getOlderThen(cutOff);
+      // TODO(jt) unused
       var tabsToSave = [];
 
       if (settings.get('paused') === true) {
@@ -125,8 +128,8 @@ require(['require-config'], function() {
       chrome.tabs.onUpdated.addListener(tabmanager.updateLastAccessed);
       chrome.tabs.onRemoved.addListener(tabmanager.removeTab);
       chrome.tabs.onActivated.addListener(function(tabInfo) {
-        menus.updateContextMenus(tabInfo['tabId']);
-        tabmanager.updateLastAccessed(tabInfo['tabId']);
+        menus.updateContextMenus(tabInfo.tabId);
+        tabmanager.updateLastAccessed(tabInfo.tabId);
       });
       window.setInterval(checkToClose, settings.get('checkInterval'));
       window.setInterval(tabmanager.updateClosedCount, settings.get('badgeCounterInterval'));

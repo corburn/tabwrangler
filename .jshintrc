@@ -79,7 +79,7 @@
     // == Environments ====================================================
     //
     // These options pre-define global variables that are exposed by
-    // popular JavaScript libraries and runtime environmentsâsuch as
+    // popular JavaScript libraries and runtime environments such as
     // browser or node.js.
     
     "browser"       : true,     // Standard browser globals e.g. `window`, `document`.
@@ -112,11 +112,6 @@
     // [4]: http://www.jshint.com/options/
 
     "maxerr"        : 100,      // Maximum errors before stopping.
-    "predef"        : [         // Extra globals.
-        //"exampleVar",
-        //"anotherCoolGlobal",
-        //"iLoveDouglas"
-    ],
     "indent"        : 4,        // Specify indentation spacing,
 		"globals": {
 				/* MOCHA */

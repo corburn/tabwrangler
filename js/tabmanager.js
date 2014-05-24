@@ -1,6 +1,8 @@
+/* global _ */
+
 'use strict';
 
-define(function(require, exports, modules) {
+define(['underscore'], function() {
   /**
   * Stores the tabs in a separate variable to log Last Accessed time.
   * @type {Object}

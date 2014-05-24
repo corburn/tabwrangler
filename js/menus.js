@@ -1,9 +1,11 @@
+'use strict';
+
 define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) {
   console.log(util);
   /**
    * Creates and updates context menus.
    */
-  ContextMenuHandler = {
+  var ContextMenuHandler = {
     lockActionId: null,
     createContextMenus: function() {
       var lockTabAction = function(onClickData, selectedTab) {
@@ -47,13 +49,12 @@ define(['settings', 'tabmanager', 'util'], function(settings, tabmanager, util) 
     },
 
     updateContextMenus: function(tabId) {
-      self = this;
       // Little bit of a kludge, would be nice to be DRY here but this was simpler.
       // Sets the title again for each page.
       chrome.tabs.get(tabId, function(tab) {
         try {
           var currentDomain = util.getDomain(tab.url);
-          chrome.contextMenus.update(self.lockDomainId, {'title': 'Never close anything on ' + currentDomain});
+          chrome.contextMenus.update(this.lockDomainId, {'title': 'Never close anything on ' + currentDomain});
         } catch (e) {
           console.log(tab, 'Error in updating menu');
           throw e;

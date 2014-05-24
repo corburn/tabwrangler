@@ -8,7 +8,7 @@ require(['require-config'], function() {
     var settings = TW.settings;
     console.log('TW.settings', settings);
 
-    Popup = {};
+    var Popup = {};
     Popup.Util = {};
     Popup.Util.buildFaviconCol = function(url) {
 
@@ -201,7 +201,7 @@ require(['require-config'], function() {
         console.log('wtf');
         var tabIsPinned = tabs[i].pinned;
         var tabWhitelistMatch = tabmanager.getWhitelistMatch(tabs[i].url);
-        var tabIsLocked = tabIsPinned || tabWhitelistMatch || lockedIds.indexOf(tabs[i].id) != -1;
+        var tabIsLocked = tabIsPinned || tabWhitelistMatch || lockedIds.indexOf(tabs[i].id) !== -1;
 
         // Create a new row.
         var $tr = $('<tr></tr>');
@@ -282,7 +282,7 @@ require(['require-config'], function() {
       $('.clearCorralMessage').hide();
       // @todo: use context to select table.
       tabmanager.searchTabs(function(closedTabs) {
-        if ( closedTabs.length == 0 ) {
+        if ( closedTabs.length === 0 ) {
           // If we have no saved closed tabs, show the help text
           $('#autocloseMessage').show();
         } else {
@@ -299,7 +299,7 @@ require(['require-config'], function() {
 
       if (location.search !== '?foo') {
         location.search = '?foo';
-        throw new Error;  // load everything on the next page;
+        throw new Error();  // load everything on the next page;
         // stop execution on this page
       }
 
@@ -330,7 +330,7 @@ require(['require-config'], function() {
       $tbody.html('');
 
       var now = new Date().getTime();
-      separations = []
+      separations = [];
       separations.push([now - (1000 * 60 * 30), 'in the last 1/2 hour']);
       separations.push([now - (1000 * 60 * 60), 'in the last hour']);
       separations.push([now - (1000 * 60 * 60 * 2),'in the last 2 hours']);
@@ -390,9 +390,9 @@ require(['require-config'], function() {
         *        Page title.
         *
         *        @todo: Add this logic back in:
-        *        if ( urls[i] == 'chrome://newtab/') {
+        *        if ( urls[i] === 'chrome://newtab/') {
         *          a_title.href = 'javascript:openNewTab();';
-        *        } else  if ( urls[i] == 'chrome://extensions/') {
+        *        } else  if ( urls[i] === 'chrome://extensions/') {
         *          a_title.href = 'javascript:openExtTab();';
         *        } else {
         *          a_title.href = urls[i];
@@ -435,7 +435,7 @@ require(['require-config'], function() {
         var tab = closedTabs[i];
 
         timeGroup = getGroup(tab.closedAt);
-        if (timeGroup != currentGroup) {
+        if (timeGroup !== currentGroup) {
           createGroupRow(timeGroup, $tbody);
           currentGroup = timeGroup;
         }

@@ -22,7 +22,7 @@ Array.prototype.remove = function(from, to) {
   return this.push.apply(this, rest);
 };
 
-// TODO(jt) not used
+// TODO(jt) unused
 var Stack = (function() {
   /**
   * Subclassed JavaScript 1.5 Array for every browser.

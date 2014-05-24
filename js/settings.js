@@ -1,10 +1,12 @@
+'use strict';
+
 define(['tabmanager'], function(tabmanager) {
 
   /**
   * @type {Object}
   */
   var Settings = {
-    ititialized: false,
+    //ititialized: false,
     defaults: {
       checkInterval: 5000, // How often we check for old tabs.
       badgeCounterInterval: 6000, // How often we update the # of closed tabs in the badge.
@@ -34,7 +36,7 @@ define(['tabmanager'], function(tabmanager) {
           }
         }
       });
-      ititialized = true;
+      //ititialized = true;
     },
     cache: {}
   };
