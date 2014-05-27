@@ -9,9 +9,7 @@ require(['js/data'], function(data) {
     } else {
       console.log('eventPage.onStartup received onStartup event');
     }
-
-    //tabs.init();
-    chrome.tabs.query({windowType: 'normal'}, function() {console.log(arguments)});
+    data.init();
   }
   // Fired when a profile that has this extension installed first starts up
   // Does not fire when an incognito profile is started
@@ -24,8 +22,16 @@ require(['js/data'], function(data) {
   onStartup();
 
   // TODO: onAlarm handles alarms that signal it is time to close a tab
-  function onAlarm(Alarm) {
-    console.log('eventPage.onAlarm received onAlarm event', Alarm);
+  function onAlarm(alarm) {
+    console.log('eventPage.onAlarm received onAlarm event', alarm);
+    try {
+      chrome.tabs.remove(parseInt(alarm.name), function() {
+        data.indexedDB.add(alarm.name);
+      });
+    } catch(err) {
+      console.error('failed to remove tab', alarm.name, 'after its alarm expired', err);
+      // TODO: query database to try and match the tab id to a tab for more debugging info
+    }
   }
   chrome.alarms.onAlarm.addListener(onAlarm);
 
