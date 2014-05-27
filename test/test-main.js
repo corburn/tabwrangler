@@ -1,3 +1,5 @@
+'use strict';
+
 var allTestFiles = [];
 var TEST_REGEXP = /(spec|test)\.js$/i;
 
@@ -15,6 +17,12 @@ Object.keys(window.__karma__.files).forEach(function(file) {
 require.config({
   // Karma serves files under /base, which is the basePath from your config file
   baseUrl: '/base',
+
+  map: {
+    '*': {
+      'db': 'dbMock'
+    }
+  },
 
   // dynamically load all test files
   deps: allTestFiles,

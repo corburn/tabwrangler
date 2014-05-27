@@ -19,10 +19,10 @@
         "beforeOpeningRoundBrace": true
     },
     "disallowSpacesInsideArrayBrackets": true,
-    /*"validateJSDoc": {*/
-        /*"checkParamNames": true,*/
-        /*"requireParamTypes": true*/
-    /*},*/
+    "validateJSDoc": {
+        "checkParamNames": true,
+        "requireParamTypes": true
+    },
     "validateIndentation": 2,
     "validateQuoteMarks": "'"
 }

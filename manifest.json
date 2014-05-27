@@ -1,6 +1,7 @@
 {
   "background": {
-    "page": "background.html"
+    "scripts": ["bower_components/requirejs/require.js", "eventPage.js"],
+    "persistent": false
   },
   "manifest_version": 2,
   "name": "Tab Wrangler",
@@ -21,5 +22,11 @@
   "web_accessible_resources": [
     "img/icon48.png"
   ],
-  "permissions": [ "tabs", "notifications", "storage", "contextMenus" ]
+  "permissions": [
+    "tabs",
+    "notifications",
+    "storage",
+    "contextMenus",
+    "alarms"
+  ]
 }
