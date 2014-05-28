@@ -29,7 +29,7 @@
     <tabset>
     <tab heading="Tab Corral" ng-controller="corralCtrl">
     <form class="form-search">
-      <input name="search" type="text" class="span9 corral-search search-query" placeholder="search"/>
+      <input name="search" type="text" class="span9 corral-search search-query" placeholder="search" ng-model="search.url" />
     </form>
     <table id="corralTable" class="table-condensed table-striped table table-bordered">
       <thead>
@@ -38,7 +38,7 @@
           <th>Title</th>
           <th>Closed</th>
         </tr>
-        <tr ng-repeat="tab in corral"><td class="faviconCol"><span class="faviconContent"><img class="favicon" src="{{tab.favIconUrl}}" /></span></td><td>{{tab.url}}</td><td>{{tab.id}}</td></tr>
+        <tr ng-repeat="tab in corral | filter:search"><td class="faviconCol"><span class="faviconContent"><img class="favicon" src="{{tab.favIconUrl}}" /></span></td><td>{{tab.url}}</td><td>{{tab.id}}</td></tr>
       </thead>
       <!--
       ID is here for BC.  should really be fixed and jQuery based.
