@@ -50,12 +50,11 @@ angular.module('tabWranglerApp', ['xc.indexedDB', 'ui.bootstrap'])
 
   var objStore = $indexedDB.objectStore(OBJECT_STORE_NAME);
 
-
-  $log.info('indexedDB getAll');
-  objStore.getAll().then(function(results) {
-    $log.info('indexedDB getAll $scope.corral = results');
-    $scope.corral = results;
-  });
+  //$log.info('indexedDB getAll');
+  //objStore.getAll().then(function(results) {
+    //$log.info('indexedDB getAll $scope.corral = results');
+    //$scope.corral = results;
+  //});
 
   //var query = $indexedDB.queryBuilder().$index('url_idx').$asc.compile();
   //objStore.each(query).then(function(cursor) {
@@ -69,6 +68,11 @@ angular.module('tabWranglerApp', ['xc.indexedDB', 'ui.bootstrap'])
     min: 5,
     max: 500,
     purgeClosed: false,
-    showBadgeCount: true
+    showBadgeCount: true,
+    autolock: []
   };
+
+  //chrome.storage.sync.get($scope.tab, function(items) {
+    //$scope.tab = items;
+  //});
 });
