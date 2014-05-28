@@ -20,6 +20,8 @@
     "jquery-timeago": "~1.4.1",
     "requirejs": "~2.1.11",
     "underscore": "~1.6.0",
-    "lodash-amd": "~2.4.1"
+    "lodash-amd": "~2.4.1",
+    "angularjs-indexedDB": "*",
+    "angular": "~1.2.16"
   }
 }
