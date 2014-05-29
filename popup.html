@@ -94,13 +94,15 @@
           <span class="help-block">(does not include pinned or locked tabs)</span>
         </div>
 
-        <div class="form-group">
-          <label for="showBadgeCount">Remember up to</label>
-          <div class="input-group">
-            <input type="text" id="maxTabs" class="form-control" ng-model="tab.max">
-            <span class="input-group-addon">closed tabs</span>
-          </div>
-        </div>
+        <!--
+           -<div class="form-group">
+           -  <label for="maxTabs">Remember up to</label>
+           -  <div class="input-group">
+           -    <input type="text" id="maxTabs" class="form-control" ng-model="tab.max">
+           -    <span class="input-group-addon">closed tabs</span>
+           -  </div>
+           -</div>
+           -->
 
         <div class="checkbox">
           <label for="purgeClosedTabs">
@@ -125,23 +127,19 @@
         <div class="form-group">
           <label for="wl-add">Tabs with urls "like":</label>
           <div class="input-group">
-            <input type="text" id="wl-add" class="form-control" placeholder="chrome.*://">
+            <input type="text" id="wl-add" class="form-control" placeholder="chrome.*://" ng-model="regexp">
             <span class="input-group-btn">
-              <button class="btn btn-default" id="addToWL" disabled>Add</button>
+              <button class="btn btn-default" id="addToWL" disabled ng-click="addLock(regexp)" ng-disabled="!regexp">Add</button>
             </span>
           </div>
         </div>
 
         <table class="table table-bordered table-striped" id="whitelist">
           <thead>
-            <th>
-              Url pattern
-            </th>
-            <th>
-
-            </th>
+            <th>Url pattern</th>
           </thead>
           <tbody>
+            <tr ng-repeat="lock in tab.autolock | filter:regexp"><td>{{lock}}<button type="button" class="close pull-right" ng-click="removeLock($index)">&times;</button></td></tr>
           </tbody>
         </table>
         <span class="help-block">
