@@ -1,15 +1,16 @@
+/* global angular */
+
 'use strict';
 
-require(['js/data'], function(data) {
-  console.log('load eventPage');
-
+// TODO: the ng module may be unnecessary
+angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event(corral, range) {
   function onStartup(details) {
     if (details) {
       console.log('eventPage.onStartup received onInstalled event', details);
     } else {
       console.log('eventPage.onStartup received onStartup event');
     }
-    data.init();
+    //data.init();
   }
   // Fired when a profile that has this extension installed first starts up
   // Does not fire when an incognito profile is started
@@ -26,7 +27,7 @@ require(['js/data'], function(data) {
     console.log('eventPage.onAlarm received onAlarm event', alarm);
     try {
       chrome.tabs.remove(parseInt(alarm.name), function() {
-        data.indexedDB.add(alarm.name);
+        //data.indexedDB.add(alarm.name);
       });
     } catch(err) {
       console.error('failed to remove tab', alarm.name, 'after its alarm expired', err);
@@ -49,7 +50,6 @@ require(['js/data'], function(data) {
   */
   //See chrome.runtime for IPC events
 
-  //tabs.init();
   //navigator.webkitTemporaryStorage.queryUsageAndQuota(function() {console.log(arguments)});
   //navigator.webkitPersistentStorage.queryUsageAndQuota(function() {console.log(arguments)});
   //new Notification("Hello World!");
@@ -65,4 +65,4 @@ require(['js/data'], function(data) {
   //chrome.tabs.onRemoved.addListener(log('onRemoved'));
   //chrome.tabs.onReplaced.addListener(log('onReplaced'));
 
-});
+}]);
