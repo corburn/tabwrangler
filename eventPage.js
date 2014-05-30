@@ -10,7 +10,8 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
     } else {
       console.log('eventPage.onStartup received onStartup event');
     }
-    chrome.tabs.query({windowType: 'normal'}, range.addAll);
+    // Start timers on all open tabs
+    range.addAll();
   }
   // Fired when a profile that has this extension installed first starts up
   // Does not fire when an incognito profile is started
@@ -58,7 +59,9 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
   //chrome.tabs.onCreated.addListener(tabs.onCreated);
   //chrome.tabs.onUpdated.addListener(log('onUpdated'));
   //chrome.tabs.onMoved.addListener(log('onMoved'));
-  //chrome.tabs.onActivated.addListener(log('onActivated'));
+  chrome.tabs.onActivated.addListener(function(activeInfo) {
+    range.resetAlarm(activeInfo.tabId.toString());
+  });
   //chrome.tabs.onHighlighted.addListener(log('onHighlighted'));
   //chrome.tabs.onDetached.addListener(log('onDetached'));
   //chrome.tabs.onAttached.addListener(log('onAttached'));

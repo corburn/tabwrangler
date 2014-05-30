@@ -41,6 +41,15 @@ angular.module('tabWranglerApp', ['tabmanager', 'ui.bootstrap'])
     $scope.corral = result;
   });
 })
+.controller('rangeCtrl', function($scope, $log, range) {
+  $scope.range = [];
+  range.getAll().then(function(result) {
+    $log.log('rangeCtrl', result);
+    $scope.range = result;
+  }, function(result) {
+    $log.error('rangeCtrl', result);
+  });
+})
 .controller('settingsCtrl', function($scope, settings) {
   settings.getAll().then(function(result) {
     $scope.tab = result;

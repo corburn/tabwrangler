@@ -54,7 +54,7 @@
     <div class="clearCorralMessage alert alert-info"><a class="clearCorralLink" href="#">Clear list</a></div>
     </tab>
 
-    <tab heading="Tab Lock">
+    <tab heading="Tab Lock" ng-controller="rangeCtrl">
     <div class="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
     <table id="activeTabs" class="table-striped table table-bordered">
       <thead>
@@ -63,6 +63,12 @@
           <th class="narrowColumn"></th>
           <th>Tab</th>
           <th class="countdownColumn">Closing in</th>
+        </tr>
+        <tr ng-repeat="tabId in range">
+          <td></td>
+          <td></td>
+          <td>{{tabId}}</td>
+          <td></td>
         </tr>
         <!-- TODO: remove comment? -->
         <!-- Class is a total kludge to keep popup=lock working -->
