@@ -10,6 +10,10 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
     } else {
       console.log('eventPage.onStartup received onStartup event');
     }
+    // TODO: This was added because the alarms from the previous session were not being cleared.
+    // The problem may go away when the onStartup() call below that is being used during development
+    // is removed
+    chrome.alarms.clearAll();
     // Start timers on all open tabs
     range.addAll();
   }
@@ -56,16 +60,20 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
   //new Notification("Hello World!");
 
   // Register tab event handlers
-  //chrome.tabs.onCreated.addListener(tabs.onCreated);
+  chrome.tabs.onCreated.addListener(range.resetAlarm);
   //chrome.tabs.onUpdated.addListener(log('onUpdated'));
   //chrome.tabs.onMoved.addListener(log('onMoved'));
   chrome.tabs.onActivated.addListener(function(activeInfo) {
-    range.resetAlarm(activeInfo.tabId.toString());
+    chrome.tabs.get(activeInfo.tabId, range.resetAlarm);
   });
   //chrome.tabs.onHighlighted.addListener(log('onHighlighted'));
   //chrome.tabs.onDetached.addListener(log('onDetached'));
   //chrome.tabs.onAttached.addListener(log('onAttached'));
-  //chrome.tabs.onRemoved.addListener(log('onRemoved'));
+  chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+    // TODO: A wasCleared callback was added in Chrome verion 35+
+    console.log(tabId);
+    chrome.alarms.clear(tabId.toString());
+  });
   //chrome.tabs.onReplaced.addListener(log('onReplaced'));
 
 }]);

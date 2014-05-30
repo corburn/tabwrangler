@@ -45,7 +45,13 @@
           <th>Title</th>
           <th>Closed</th>
         </tr>
-        <tr ng-repeat="tab in corral | filter:search"><td class="faviconCol"><span class="faviconContent"><img class="favicon" src="{{tab.favIconUrl}}" /></span></td><td>{{tab.url}}</td><td>{{tab.id}}</td></tr>
+        <tr ng-repeat="tab in corral | filter:search">
+          <td class="faviconCol">
+            <span class="faviconContent"><img class="favicon" src="{{tab.favIconUrl}}" /></span>
+          </td>
+          <td>{{tab.url}}</td>
+          <td>{{tab.id}}</td>
+        </tr>
       </thead>
       <tbody>
       </tbody>
@@ -64,14 +70,12 @@
           <th>Tab</th>
           <th class="countdownColumn">Closing in</th>
         </tr>
-        <tr ng-repeat="tabId in range">
+        <tr ng-repeat="tab in range">
           <td></td>
-          <td></td>
-          <td>{{tabId}}</td>
+          <td><img class="favicon" src="{{tab.favIconUrl}}"></td>
+          <td>{{tab.url}}</td>
           <td></td>
         </tr>
-        <!-- TODO: remove comment? -->
-        <!-- Class is a total kludge to keep popup=lock working -->
         <tbody>
 
         </tbody>

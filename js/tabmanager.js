@@ -96,9 +96,9 @@ angular.module('tabmanager', ['xc.indexedDB'])
   };
 })
 .factory('range', function($q, filterFilter, $log, settings) {
-  $log.log('range');
   return {
     addAll: function() {
+      $log.log('range.addAll');
       var deferTabs = $q.defer();
       var _settings = {};
       chrome.tabs.query({windowType: 'normal', pinned: false, active: false}, callback(deferTabs));
@@ -128,19 +128,37 @@ angular.module('tabmanager', ['xc.indexedDB'])
       });
     },
     getAll: function() {
+      $log.log('range.getAll');
+      // Return a promise with an array of tabs that have alarms set
       var deferred = $q.defer();
       chrome.alarms.getAll(callback(deferred));
-      return deferred.promise;
+      return deferred.promise.then(function(alarms) {
+        var promises = [];
+        angular.forEach(alarms, function(value) {
+          var deferred = new $q.defer();
+          promises.push(deferred.promise);
+          chrome.tabs.get(parseInt(value.name), callback(deferred));
+        });
+        return $q.all(promises);
+      });
     },
-    resetAlarm: function(tabId) {
-      settings.getMinutesInactive().then(function(items) {
-        // TODO: When chrome version 35+ is more common, add a callback parameter to chrome.alarms.clear
-        // that wraps chrome.alarms.create. Is there a potential race condition here?
-        chrome.alarms.clear(tabId);
-        chrome.alarms.create(tabId, {delayInMinutes: items.minutesInactive});
+    resetAlarm: function(tab) {
+      $log.log('range.resetAlarm', tab);
+      settings.getAll().then(function(items) {
+        var regexp = new RegExp(items.autolock.join('|'));
+        var tabId = tab.id.toString();
+        if (regexp.test(tab.url)) {
+          $log.log('range.resetAlarm', tab, 'matches an autolock pattern');
+        } else {
+          // TODO: When chrome version 35+ is more common, add a callback parameter to chrome.alarms.clear
+          // that wraps chrome.alarms.create. Is there a potential race condition here?
+          chrome.alarms.clear(tabId);
+          chrome.alarms.create(tabId, {delayInMinutes: items.minutesInactive});
+        }
       });
     },
     upsert: function(settings) {
+      $log.log('range.upsert', settings);
       var deferred = $q.defer();
       // If an error occures, it would most likely be MAX_SUSTAINED_WRITE_OPERATIONS_PER_MINUTE exceeded
       // See chrome API documentation for details
