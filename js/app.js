@@ -6,15 +6,7 @@
 
 'use strict';
 
-angular.module('tabWranglerApp', ['xc.indexedDB', 'ui.bootstrap'])
-.config(function($indexedDBProvider) {
-  $indexedDBProvider
-  .connection('default')
-  .upgradeDatabase(2, function(event, db, tx) {
-    var objStore = db.createObjectStore('tab', {keyPath: 'id'});
-    objStore.createIndex('url', 'url', {unique: false});
-  });
-})
+angular.module('tabWranglerApp', ['tabmanager', 'ui.bootstrap'])
 .directive('countdown', function($interval, dateFilter, $log) {
   var midnight = new Date();
   midnight.setHours(0);
@@ -43,66 +35,26 @@ angular.module('tabWranglerApp', ['xc.indexedDB', 'ui.bootstrap'])
     });
   };
 })
-.controller('corralCtrl', function($scope, $log, $indexedDB) {
+.controller('corralCtrl', function($scope, corral) {
   $scope.corral = [];
-
-  var OBJECT_STORE_NAME = 'default';
-
-  var objStore = $indexedDB.objectStore(OBJECT_STORE_NAME);
-
-  $log.info('indexedDB getAll');
-  objStore.getAll().then(function(results) {
-    $log.info('indexedDB getAll $scope.corral = results');
-    $scope.corral = results;
+  corral.getAll().then(function(result) {
+    $scope.corral = result;
   });
-
-  //var query = $indexedDB.queryBuilder().$index('url_idx').$asc.compile();
-  //objStore.each(query).then(function(cuLrsor) {
-    //cursor.key;
-    //cursor.value;
-  //});
 })
-.controller('settingsCtrl', function($scope) {
-  // Settings with first run defaults
-  $scope.tab = {
-    minutesInactive: 10,
-    min: 5,
-    //max: 500,
-    purgeClosed: false,
-    showBadgeCount: true,
-    autolock: []
-  };
-
-  // Load persistent settings from Chrome Sync
-  function init() {
-    chrome.storage.sync.get($scope.tab, function(items) {
-      $scope.tab = items;
-    });
-  }
-
-  // Save persistent settings to Chrome Sync
-  // TODO: Should the entire object be sent with each update or should this be broken
-  // into functions for each field?
-  function upsert() {
-    chrome.storage.sync.set($scope.tab, function() {
-      if(chrome.runtime.lastError) {
-        // TODO: handle error
-        // This would most likely be MAX_SUSTAINED_WRITE_OPERATIONS_PER_MINUTE exceeded
-        // See chrome API documentation for details
-      }
-    });
-  }
-
+.controller('settingsCtrl', function($scope, settings) {
+  settings.getAll().then(function(result) {
+    $scope.tab = result;
+  });
   $scope.addLock = function(regexp) {
     // TODO add validation
     $scope.tab.autolock.push(regexp);
-    upsert();
+    // Clear the input so the filter won't hide all the locks
+    $scope.regexp = '';
+    settings.upsert($scope.tab);
   };
 
   $scope.removeLock = function(index) {
     $scope.tab.autolock.splice(index, 1);
-    upsert();
+    settings.upsert($scope.tab);
   };
-
-  init();
 });

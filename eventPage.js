@@ -10,7 +10,7 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
     } else {
       console.log('eventPage.onStartup received onStartup event');
     }
-    //data.init();
+    chrome.tabs.query({windowType: 'normal'}, range.addAll);
   }
   // Fired when a profile that has this extension installed first starts up
   // Does not fire when an incognito profile is started
