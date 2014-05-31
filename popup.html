@@ -74,7 +74,7 @@
           <td></td>
           <td><img class="favicon" src="{{tab.favIconUrl}}"></td>
           <td>{{tab.url}}</td>
-          <td></td>
+          <td countdown="{{tab.scheduledTime}}"></td>
         </tr>
         <tbody>
 
@@ -91,7 +91,7 @@
         <div class="form-group">
           <label for="minutesInactive">Close inactive tabs after</label>
           <div class="input-group">
-            <input type="text" id="minutesInactive" class="form-control" ng-model="tab.minutesInactive">
+            <input type="number" min="1" max="720" id="minutesInactive" class="form-control" ng-model="tab.minutesInactive" ng-blur="upsert(tab)">
             <span class="input-group-addon">minutes</span>
           </div>
         </div>
@@ -99,7 +99,7 @@
         <div class="form-group">
           <label for="minTabs">Don't auto-close if the window has only</label>
           <div class="input-group">
-            <input type="text" id="minTabs" class="form-control" ng-model="tab.min">
+            <input type="number" min="0" id="minTabs" class="form-control" ng-model="tab.min" ng-blur="upsert(tab)">
             <span class="input-group-addon">open tabs</span>
           </div>
           <span class="help-block">(does not include pinned or locked tabs)</span>
@@ -117,14 +117,14 @@
 
         <div class="checkbox">
           <label for="purgeClosedTabs">
-            <input type="checkbox" id="purgeClosedTabs" ng-model="tab.purgeClosedTabs">
+            <input type="checkbox" id="purgeClosedTabs" ng-model="tab.purgeClosedTabs" ng-click="upsert(tab)">
             Clear closed tabs list on quit
           </label>
         </div>
 
         <div class="checkbox">
           <label for="showBadgeCount">
-            <input type="checkbox" id="showBadgeCount" ng-model="tab.showBadgeCount">
+            <input type="checkbox" id="showBadgeCount" ng-model="tab.showBadgeCount" ng-click="upsert(tab)">
             Show # of closed tabs in url bar
           </label>
         </div>
