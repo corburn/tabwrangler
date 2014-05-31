@@ -20,9 +20,9 @@ angular.module('tabmanager', ['xc.indexedDB'])
 .config(function($indexedDBProvider) {
   $indexedDBProvider
   .connection('corral')
-  .upgradeDatabase(2, function(event, db, tx) {
+  .upgradeDatabase(3, function(event, db, tx) {
     var objStore = db.createObjectStore(OBJECT_STORE_NAME, {keyPath: 'id'});
-    objStore.createIndex('url', 'url', {unique: false});
+    objStore.createIndex('url', 'url', {unique: true});
   });
 })
 .factory('settings', function($q) {
@@ -79,16 +79,38 @@ angular.module('tabmanager', ['xc.indexedDB'])
     }
   };
 })
-.factory('corral', function($indexedDB) {
+.factory('corral', function($q, $log, $indexedDB, settings) {
   return {
     addAll: function(data) {
+      // Insert tabs into the database
       return $indexedDB.objectStore(OBJECT_STORE_NAME).upsert(data);
+      // Get the database count and check if it should be displayed on the extension badge.
+      // Combining them allows the count to piggyback on the upsert IDBRequest to avoid an
+      // unfinished request error trying to make another request during this transaction.
+      /*
+       *.then(function(e) {
+       *  $log.log('corral.addAll upsert', e);
+       *  return $q.all(settings.getShowBadgeCount(), e.count());
+       *})
+       * Either display the count or clear the badge text with an empty string
+       *.then(function(result) {
+       *  $log.log('corral.addAll showBadgeCount and count', result);
+       *  if (!result[0].showBadgeCount) {
+       *    return;
+       *  }
+       *  // Use a default count if the result is too big to display
+       *  if(result[1].result < 999) {
+       *    text = result[1].result.toString();
+       *  } else {
+       *    text = '999+';
+       *  }
+       *  $log.log('corral.addAll set badge text', text);
+       *  chrome.browserAction.setBadgeText({text: text});
+       *});
+       */
     },
     getAll: function() {
       return $indexedDB.objectStore(OBJECT_STORE_NAME).getAll();
-    },
-    count: function() {
-      return $indexedDB.objectStore(OBJECT_STORE_NAME).count();
     },
     remove: function(key) {
       return $indexedDB.objectStore(OBJECT_STORE_NAME).delete(key);
@@ -96,11 +118,19 @@ angular.module('tabmanager', ['xc.indexedDB'])
   };
 })
 .factory('range', function($q, filterFilter, $log, settings) {
+  var calledOnce = false;
   return {
     addAll: function() {
-      $log.log('range.addAll');
       var deferTabs = $q.defer();
       var _settings = {};
+
+      // Should only be called once onStartup
+      if (calledOnce) {
+        $log.error('range.addAll was already called');
+        return;
+      }
+      calledOnce = true;
+
       chrome.tabs.query({windowType: 'normal', pinned: false, active: false}, callback(deferTabs));
       $q.all([
         // Get all settings
@@ -122,6 +152,7 @@ angular.module('tabmanager', ['xc.indexedDB'])
       // Start timers on all tabs
       // TODO: Filter tabs in windows with less than settings.min tabs
       .then(function(tabs) {
+        $log.log('range.addAll alarms', tabs);
         angular.forEach(tabs, function(value) {
           chrome.alarms.create(value.id.toString(), {delayInMinutes: _settings.minutesInactive});
         });
@@ -137,19 +168,26 @@ angular.module('tabmanager', ['xc.indexedDB'])
         angular.forEach(alarms, function(value) {
           var deferred = new $q.defer();
           promises.push(deferred.promise);
-          chrome.tabs.get(parseInt(value.name), callback(deferred));
+          chrome.tabs.get(parseInt(value.name), function(items) {
+            if(chrome.runtime.lastError) {
+              deferred.reject(chrome.runtime.lastError);
+            } else {
+              items.scheduledTime = value.scheduledTime;
+              deferred.resolve(items);
+            }
+          });
         });
         return $q.all(promises);
       });
     },
     resetAlarm: function(tab) {
-      $log.log('range.resetAlarm', tab);
       settings.getAll().then(function(items) {
         var regexp = new RegExp(items.autolock.join('|'));
         var tabId = tab.id.toString();
         if (regexp.test(tab.url)) {
-          $log.log('range.resetAlarm', tab, 'matches an autolock pattern');
+          $log.log('range.resetAlarm matched an autolock pattern', tab.url, tab);
         } else {
+          $log.log('range.resetAlarm', tab);
           // TODO: When chrome version 35+ is more common, add a callback parameter to chrome.alarms.clear
           // that wraps chrome.alarms.create. Is there a potential race condition here?
           chrome.alarms.clear(tabId);
