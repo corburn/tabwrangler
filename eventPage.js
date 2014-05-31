@@ -30,14 +30,29 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
   // TODO: onAlarm handles alarms that signal it is time to close a tab
   function onAlarm(alarm) {
     console.log('eventPage.onAlarm received onAlarm event', alarm);
+    var tabId;
+    var errMsg = 'failed to remove tab' + alarm.name + 'after its alarm expired';
     try {
-      chrome.tabs.remove(parseInt(alarm.name), function() {
-        //data.indexedDB.add(alarm.name);
-      });
-    } catch(err) {
-      console.error('failed to remove tab', alarm.name, 'after its alarm expired', err);
-      // TODO: query database to try and match the tab id to a tab for more debugging info
+      tabId = parseInt(alarm.name);
+    } catch (err) {
+      console.error(errMsg, err);
+      return;
     }
+    chrome.tabs.get(tabId, function(tab) {
+      if (chrome.runtime.lastError) {
+        console.error(errMsg, chrome.runtime.lastError);
+        return;
+      } else {
+        corral.addAll(tab).then(function() {
+          chrome.tabs.remove(tabId, function() {
+            if(chrome.runtime.lastError) {
+              console.error(errMsg, chrome.runtime.lastError);
+              this.abort();
+            }
+          });
+        });
+      }
+    });
   }
   chrome.alarms.onAlarm.addListener(onAlarm);
 
@@ -71,7 +86,7 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
   //chrome.tabs.onAttached.addListener(log('onAttached'));
   chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
     // TODO: A wasCleared callback was added in Chrome verion 35+
-    console.log(tabId);
+      console.log('chrome.tabs.onRemoved', tabId);
     chrome.alarms.clear(tabId.toString());
   });
   //chrome.tabs.onReplaced.addListener(log('onReplaced'));
