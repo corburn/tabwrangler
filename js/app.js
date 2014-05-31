@@ -15,18 +15,24 @@ angular.module('tabWranglerApp', ['tabmanager', 'ui.bootstrap'])
   midnight.setMilliseconds(0);
 
   return function(scope, element, attrs) {
-    var countdown = attrs.countdown - new Date() + midnight;
+    var stopTime;
+    var countdown = attrs.countdown - new Date().getTime() + midnight.getTime();
+    $log.log(countdown);
+    $log.log(attrs.countdown);
 
     // used to update the UI
     function updateTime() {
-      if ((countdown -= 1000) < 0) {
+      if ((countdown -= 1000) < midnight.getTime()) {
         $log.error('negative countdown', countdown);
+        $interval.cancel(stopTime);
+        element.css('color', 'red');
+        return;
       }
       element.text(dateFilter(countdown, 'HH:mm:ss'));
     }
 
     // so we can cancel the time updates
-    var stopTime = $interval(updateTime, 1000);
+    stopTime = $interval(updateTime, 1000);
 
     // listen on DOM destroy (removal) event, and cancel the next UI update
     // to prevent updating time after the DOM element was removed
@@ -66,4 +72,6 @@ angular.module('tabWranglerApp', ['tabmanager', 'ui.bootstrap'])
     $scope.tab.autolock.splice(index, 1);
     settings.upsert($scope.tab);
   };
+
+  $scope.upsert = settings.upsert;
 });
