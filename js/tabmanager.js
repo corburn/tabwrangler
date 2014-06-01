@@ -186,10 +186,15 @@ angular.module('tabmanager', ['xc.indexedDB'])
         return $q.all(promises);
       });
     },
+    clearAlarm: function(tab) {
+      // tab can be either a Tab object or tabId number
+      chrome.alarms.clear((tab.id || tab).toString());
+    },
     resetAlarm: function(tab) {
       settings.getAll().then(function(items) {
         var regexp = new RegExp(items.autolock.join('|'));
-        var tabId = tab.id.toString();
+        // tab can be either a Tab object or tabId number
+        var tabId = (tab.id || tab).toString();
         if (regexp.test(tab.url)) {
           $log.log('range.resetAlarm matched an autolock pattern', tab.url, tab);
         } else {

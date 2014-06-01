@@ -2,6 +2,20 @@
 
 'use strict';
 
+function notifyError(message) {
+  chrome.notifications.getPermissionLevel(function(permission) {
+    if (permission !== 'granted') {
+      return;
+    }
+  });
+  chrome.notifications.create(null, {
+    type: 'basic',
+    iconUrl: 'img/icon48.png',
+    title: 'Error',
+    message: message
+  });
+}
+
 // TODO: the ng module may be unnecessary
 angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event(corral, range) {
   function onStartup(details) {
@@ -27,26 +41,34 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
   // It here to make it easier to simulate these events
   onStartup();
 
-  // TODO: onAlarm handles alarms that signal it is time to close a tab
+  // onAlarm handles alarms that signal it is time to close a tab
   function onAlarm(alarm) {
     console.log('eventPage.onAlarm received onAlarm event', alarm);
     var tabId;
     var errMsg = 'failed to remove tab' + alarm.name + 'after its alarm expired';
+    // Parse tabId from alarm
     try {
       tabId = parseInt(alarm.name);
     } catch (err) {
       console.error(errMsg, err);
+      notifyError(errMsg + err);
       return;
     }
+    // Lookup tab with tabId
     chrome.tabs.get(tabId, function(tab) {
       if (chrome.runtime.lastError) {
         console.error(errMsg, chrome.runtime.lastError);
+        notifyError(errMsg + chrome.runtime.lastError);
         return;
       } else {
+        // Add tab to the database first to ensure tabs aren't lost on error
         corral.addAll(tab).then(function() {
+          // Close the tab
           chrome.tabs.remove(tabId, function() {
             if(chrome.runtime.lastError) {
               console.error(errMsg, chrome.runtime.lastError);
+              notifyError(errMsg + chrome.runtime.lastError);
+              // Abort transaction on error
               this.abort();
             }
           });
@@ -55,6 +77,39 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
     });
   }
   chrome.alarms.onAlarm.addListener(onAlarm);
+
+  /**
+  * Handler for the onCreated/onAttached/onDetached events
+  * If the event causes the window to cross the minimum tab threshold,
+  * clear or reset the alarms for all the tabs in the window as appropriate.
+  *
+  * @param {string} The key is one of: onCreated, oldWindowId, newWindowId
+  * @param {function} The action either sets or resets the alarm for the given Tab
+  * @return {function} A callback that takes either a Tab object when the key is onCreated
+  * or a tabId number and attachInfo/detachInfo object
+  */
+  function minThreshold(key, action) {
+    console.error('TODO: fix minThreshold hardcoded min');
+    var min = 5;
+    return function(tab, info) {
+      // The onCreated event doesn't pass an info object like the others
+      if (key === 'onCreated') {
+        info = {'onCreated': tab.windowId};
+      }
+      // Get all tabs from the tab's window
+      chrome.tabs.query({windowId: info[key], windowType: 'normal'}, function(tabs) {
+        // Apply the action to all the tabs
+        if ((key === 'oldWindowId' && tabs.length <= min) || tabs.length === min+1) {
+          angular.forEach(tabs, action);
+        }
+        // Clear the alarm from the tab that triggered the event; it is probably active
+        range.clearAlarm(tab);
+      });
+    };
+  }
+  chrome.tabs.onDetached.addListener(minThreshold('oldWindowId', range.clearAlarm));
+  chrome.tabs.onAttached.addListener(minThreshold('newWindowId', range.resetAlarm));
+  chrome.tabs.onCreated.addListener(minThreshold('onCreated', range.resetAlarm));
 
   // Fired just before the event page is unloaded
   // Asynchronous events are not guaranteed to complete
@@ -72,22 +127,35 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
 
   //navigator.webkitTemporaryStorage.queryUsageAndQuota(function() {console.log(arguments)});
   //navigator.webkitPersistentStorage.queryUsageAndQuota(function() {console.log(arguments)});
-  //new Notification("Hello World!");
 
   // Register tab event handlers
-  chrome.tabs.onCreated.addListener(range.resetAlarm);
   //chrome.tabs.onUpdated.addListener(log('onUpdated'));
   //chrome.tabs.onMoved.addListener(log('onMoved'));
+  // Clear alarm for the current tab and reset alarm for the previous tab
   chrome.tabs.onActivated.addListener(function(activeInfo) {
-    chrome.tabs.get(activeInfo.tabId, range.resetAlarm);
+    var windowId = activeInfo.windowId.toString();
+    var tabId = activeInfo.tabId;
+    var query = JSON.parse('{ "current": { "' + windowId + '": ' + tabId + '} }');
+    // Use local storage to remember previous tab for each window and avoid sync quota limit
+    chrome.storage.local.get(query, function(items) {
+      if (chrome.runtime.lastError) {
+        console.error('onActivated', chrome.runtime.lastError);
+        notifyError('onActivated' + chrome.runtime.lastError);
+      }
+      if (items.current[windowId] !== tabId) {
+        range.resetAlarm(items.current[windowId]);
+        console.log('onActivated windowId:', windowId, 'tabId', items.current[windowId], '=>', tabId);
+      } else {
+        console.log('onActivated windowId:', windowId, 'tabId null =>', tabId);
+      }
+      chrome.storage.local.set(query);
+    });
+    range.clearAlarm(tabId);
   });
   //chrome.tabs.onHighlighted.addListener(log('onHighlighted'));
-  //chrome.tabs.onDetached.addListener(log('onDetached'));
-  //chrome.tabs.onAttached.addListener(log('onAttached'));
   chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
-    // TODO: A wasCleared callback was added in Chrome verion 35+
-      console.log('chrome.tabs.onRemoved', tabId);
-    chrome.alarms.clear(tabId.toString());
+    console.log('chrome.tabs.onRemoved', tabId);
+    range.clearAlarm(tabId);
   });
   //chrome.tabs.onReplaced.addListener(log('onReplaced'));
 
