@@ -15,12 +15,18 @@ function callback(deferred) {
   };
 }
 
+console.error('TODO: fix upgradeDatabase object store unconditionally deleted');
 
 angular.module('tabmanager', ['xc.indexedDB'])
 .config(function($indexedDBProvider) {
   $indexedDBProvider
   .connection('corral')
+  // TODO: onupgradeneeded the object store is unconditionally deleted
+  // This may cause users to lose information
   .upgradeDatabase(3, function(event, db, tx) {
+    if (db.objectStoreNames.contains(OBJECT_STORE_NAME)) {
+      db.deleteObjectStore(OBJECT_STORE_NAME);
+    }
     var objStore = db.createObjectStore(OBJECT_STORE_NAME, {keyPath: 'id'});
     objStore.createIndex('url', 'url', {unique: true});
   });
@@ -32,7 +38,7 @@ angular.module('tabmanager', ['xc.indexedDB'])
     purgeClosed: false,
     showBadgeCount: true,
     //allowDuplicates: false,
-    autolock: []
+    autolock: ['^chrome.*//', 'localhost']
   };
   return {
     getAll: function() {
