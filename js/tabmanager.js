@@ -38,7 +38,7 @@ angular.module('tabmanager', ['xc.indexedDB'])
     purgeClosed: false,
     showBadgeCount: true,
     //allowDuplicates: false,
-    autolock: ['^chrome.*//', 'localhost']
+    autolock: ['^chrome.*\/\/', 'localhost']
   };
   return {
     getAll: function() {
@@ -191,10 +191,23 @@ angular.module('tabmanager', ['xc.indexedDB'])
       chrome.alarms.clear((tab.id || tab).toString());
     },
     resetAlarm: function(tab) {
-      settings.getAll().then(function(items) {
-        var regexp = new RegExp(items.autolock.join('|'));
-        // tab can be either a Tab object or tabId number
-        var tabId = (tab.id || tab).toString();
+      var deferTab = $q.defer();
+      var deferConfig = settings.getAll();
+
+      if (typeof tab === 'number') {
+        // Need the url for autolocking
+        chrome.tabs.get(tab, callback(deferTab));
+      } else {
+        // Already have the url
+        deferTab.resolve(tab);
+      }
+
+      // Reset the tab alarm if it does not match an autolock pattern
+      $q.all([deferConfig, deferTab.promise]).then(function(result) {
+        var config = result[0];
+        var tab = result[1];
+        var regexp = new RegExp(config.autolock.join('|'));
+        var tabId = tab.id.toString();
         if (regexp.test(tab.url)) {
           $log.log('range.resetAlarm matched an autolock pattern', tab.url, tab);
         } else {
@@ -202,7 +215,7 @@ angular.module('tabmanager', ['xc.indexedDB'])
           // TODO: When chrome version 35+ is more common, add a callback parameter to chrome.alarms.clear
           // that wraps chrome.alarms.create. Is there a potential race condition here?
           chrome.alarms.clear(tabId);
-          chrome.alarms.create(tabId, {delayInMinutes: items.minutesInactive});
+          chrome.alarms.create(tabId, {delayInMinutes: config.minutesInactive});
         }
       });
     },

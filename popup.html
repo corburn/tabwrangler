@@ -11,6 +11,7 @@
     <style>
       body {
         width: 700px;
+        overflow-y: scroll;
       }
     </style>
 
@@ -142,7 +143,7 @@
         <div class="form-group">
           <label for="wl-add">Tabs with urls "like":</label>
           <div class="input-group">
-            <input type="text" id="wl-add" class="form-control" placeholder="chrome.*://" ng-model="regexp">
+            <input type="text" id="wl-add" class="form-control" placeholder="chrome.*:\/\/" ng-model="regexp">
             <span class="input-group-btn">
               <button class="btn btn-default" id="addToWL" disabled ng-click="addLock(regexp)" ng-disabled="!regexp">Add</button>
             </span>
