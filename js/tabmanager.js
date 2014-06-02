@@ -201,6 +201,7 @@ angular.module('tabmanager', ['xc.indexedDB'])
     clearAlarm: function(tab) {
       // tab can be either a Tab object or tabId number
       chrome.alarms.clear((tab.id || tab).toString());
+      $log.log('range.clearAlarm', tab);
     },
     resetAlarm: function(tab) {
       var deferTab = $q.defer();
