@@ -11,7 +11,12 @@
     <style>
       body {
         width: 700px;
-        overflow-y: scroll;
+        /*overflow-y: scroll;*/
+      }
+      .favicon {
+        width: 16px;
+        padding: 0px;
+        margin: 0px;
       }
     </style>
 
@@ -28,20 +33,18 @@
   <body class="container">
 
 
-    <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews" id="reviewButton" class="btn btn-mini"> 
-      <i class="icon-star"></i> Review Tab Wrangler
-    </a>
-
-    <button class="btn btn-sm" ng-init="paused=false" ng-class="{true: 'btn-default', false: 'btn-primary'}[paused]" ng-click="paused = !paused">
+    <button class="btn btn-sm pull-right" ng-init="paused=false" ng-class="{true: 'btn-default', false: 'btn-primary'}[paused]" ng-click="paused = !paused">
       <i class="glyphicon" ng-class="{true: 'glyphicon-play', false: 'glyphicon-pause'}[paused]"></i>
       {{(paused ? 'Resume' : 'Pause')}}
     </button>
+    <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews" id="reviewButton" class="btn btn-mini pull-right"> 
+      <i class="icon-star"></i> Review Tab Wrangler
+    </a>
+
 
     <tabset>
     <tab heading="Tab Corral" ng-controller="corralCtrl">
-    <form>
-      <input type="text" class="form-control" placeholder="search" ng-model="search.url">
-    </form>
+    <search ng-model="search.url"></search>
     <table id="corralTable" class="table-condensed table-striped table table-bordered">
       <thead>
         <tr>
@@ -66,6 +69,7 @@
     </tab>
 
     <tab heading="Tab Lock" ng-controller="rangeCtrl">
+    <search ng-model="search.url"></search>
     <div class="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
     <table id="activeTabs" class="table-striped table table-bordered">
       <thead>
@@ -75,7 +79,7 @@
           <th>Tab</th>
           <th class="countdownColumn">Closing in</th>
         </tr>
-        <tr ng-repeat="tab in range">
+        <tr ng-repeat="tab in range | filter:search">
           <!-- TODO checkbox lock -->
           <td><input type="checkbox"></td>
           <td><img class="favicon" src="{{tab.favIconUrl}}"></td>
@@ -112,14 +116,14 @@
         </div>
 
         <!--
-           -<div class="form-group">
-           -  <label for="maxTabs">Remember up to</label>
-           -  <div class="input-group">
-           -    <input type="text" id="maxTabs" class="form-control" ng-model="tab.max">
-           -    <span class="input-group-addon">closed tabs</span>
-           -  </div>
-           -</div>
-           -->
+        -<div class="form-group">
+          -  <label for="maxTabs">Remember up to</label>
+          -  <div class="input-group">
+            -    <input type="text" id="maxTabs" class="form-control" ng-model="tab.max">
+            -    <span class="input-group-addon">closed tabs</span>
+            -  </div>
+          -</div>
+        -->
 
         <div class="checkbox">
           <label for="purgeClosedTabs">

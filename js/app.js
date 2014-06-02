@@ -41,6 +41,35 @@ angular.module('tabWranglerApp', ['tabmanager', 'ui.bootstrap'])
     });
   };
 })
+.directive('search', function() {
+  return {
+    restrict: 'E',
+    require: '^ngModel',
+    scope: {
+      ngModel: '='
+    },
+    template: '<div class="row">' +
+      '<div class="col-lg-6">' +
+        '<div class="input-group">' +
+          '<input type="text" class="form-control" placeholder="search" ng-model="ngModel">' +
+          '<div class="input-group-btn open">' +
+            '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-click="dropdown = !dropdown">Order by <span class="caret"></span></button>' +
+            '<ul class="dropdown-menu pull-right" ng-show="dropdown">' +
+              //'<li ng-repeat="property in properties"><a href="">{{property}}</a></li>' +
+              '<li><a href="">property</a></li>' +
+              '<li><a href="">property1</a></li>' +
+              '<li><a href="">property2</a></li>' +
+              '<li><a href="">property3</a></li>' +
+            '</ul>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>',
+    //link: function(scope) {
+      //console.log(scope);
+    //}
+  };
+})
 .controller('corralCtrl', function($scope, corral) {
   $scope.corral = [];
   // TODO: should this be limited with pagination?
@@ -50,7 +79,7 @@ angular.module('tabWranglerApp', ['tabmanager', 'ui.bootstrap'])
   // Restore tabs from the corral
   $scope.reopen = function(index) {
     corral.reopen($scope.corral[index]);
-  }
+  };
 })
 .controller('rangeCtrl', function($scope, $log, range) {
   $scope.range = [];
