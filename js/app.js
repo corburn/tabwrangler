@@ -43,9 +43,14 @@ angular.module('tabWranglerApp', ['tabmanager', 'ui.bootstrap'])
 })
 .controller('corralCtrl', function($scope, corral) {
   $scope.corral = [];
+  // TODO: should this be limited with pagination?
   corral.getAll().then(function(result) {
     $scope.corral = result;
   });
+  // Restore tabs from the corral
+  $scope.reopen = function(index) {
+    corral.reopen($scope.corral[index]);
+  }
 })
 .controller('rangeCtrl', function($scope, $log, range) {
   $scope.range = [];

@@ -54,7 +54,7 @@
           <td class="faviconCol">
             <span class="faviconContent"><img class="favicon" src="{{tab.favIconUrl}}" /></span>
           </td>
-          <td>{{tab.url}}</td>
+          <td><a href="" ng-click="reopen($index)">{{tab.url}}</a></td>
           <td>{{tab.id}}</td>
         </tr>
       </thead>
@@ -76,7 +76,8 @@
           <th class="countdownColumn">Closing in</th>
         </tr>
         <tr ng-repeat="tab in range">
-          <td></td>
+          <!-- TODO checkbox lock -->
+          <td><input type="checkbox"></td>
           <td><img class="favicon" src="{{tab.favIconUrl}}"></td>
           <td>{{tab.url}}</td>
           <td countdown="{{tab.scheduledTime}}"></td>

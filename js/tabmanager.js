@@ -118,8 +118,17 @@ angular.module('tabmanager', ['xc.indexedDB'])
     getAll: function() {
       return $indexedDB.objectStore(OBJECT_STORE_NAME).getAll();
     },
-    remove: function(key) {
-      return $indexedDB.objectStore(OBJECT_STORE_NAME).delete(key);
+    //remove: function(key) {
+      //return $indexedDB.objectStore(OBJECT_STORE_NAME).delete(key);
+    //},
+    reopen: function(tab) {
+      return $indexedDB.objectStore(OBJECT_STORE_NAME).delete(tab.id)
+      .then(function(e) {
+        var deferred = $q.defer();
+        $log.log('corral.reopen', e);
+        chrome.tabs.create({url: tab.url}, callback(deferred));
+        return deferred.promise;
+      });
     }
   };
 })
