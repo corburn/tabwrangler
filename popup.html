@@ -10,8 +10,8 @@
     <!--<link rel="stylesheet" href="css/popup.css" type="text/css"/>-->
     <style>
       body {
-        width: 700px;
-        /*overflow-y: scroll;*/
+        min-width: 600px;
+        overflow-y: scroll;
       }
       .favicon {
         width: 16px;
@@ -35,29 +35,30 @@
 
     <button class="btn btn-sm pull-right" ng-init="paused=false" ng-class="{true: 'btn-default', false: 'btn-primary'}[paused]" ng-click="paused = !paused">
       <i class="glyphicon" ng-class="{true: 'glyphicon-play', false: 'glyphicon-pause'}[paused]"></i>
-      {{(paused ? 'Resume' : 'Pause')}}
+      {{(paused ? 'Start' : 'Stop')}}
     </button>
-    <a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews" id="reviewButton" class="btn btn-mini pull-right"> 
-      <i class="icon-star"></i> Review Tab Wrangler
-    </a>
+    <!--<a target="_blank" href="https://chrome.google.com/webstore/detail/egnjhciaieeiiohknchakcodbpgjnchh/reviews" id="reviewButton" class="btn btn-mini pull-right"> -->
+      <!--<i class="icon-star"></i> Review Tab Wrangler-->
+      <!--</a>-->
 
 
     <tabset>
     <tab heading="Tab Corral" ng-controller="corralCtrl">
     <search ng-model="search.url"></search>
-    <table id="corralTable" class="table-condensed table-striped table table-bordered">
+    <table class="table">
       <thead>
         <tr>
           <!-- TODO: replace inline style with bootstrap responsive column class -->
-          <th class="narrowColumn" style="width: 20px;"><i class="icon-remove"></i></th>
+          <th class="narrowColumn"><span class="glyphicon glyphicon-remove"></span></th>
           <th>Title</th>
           <th>Closed</th>
         </tr>
-        <tr ng-repeat="tab in corral | filter:search">
-          <td class="faviconCol">
-            <span class="faviconContent"><img class="favicon" src="{{tab.favIconUrl}}" /></span>
+        <tr ng-repeat="tab in corral | filter:search | orderBy : '' : reverse">
+          <td ng-mouseenter="hover=true" ng-mouseleave="hover=false" ng-click="remove($index)">
+            <span class="glyphicon glyphicon-remove" ng-show="hover"></span>
+            <img class="favicon" src="{{tab.favIconUrl}}" ng-hide="hover">
           </td>
-          <td><a href="" ng-click="reopen($index)">{{tab.url}}</a></td>
+          <td><a href="" ng-click="reopen($index)">{{tab.title}}</a></td>
           <td>{{tab.id}}</td>
         </tr>
       </thead>
@@ -71,7 +72,7 @@
     <tab heading="Tab Lock" ng-controller="rangeCtrl">
     <search ng-model="search.url"></search>
     <div class="alert alert-info">Click the checkbox to lock the tab (prevent it from auto-closing).</div>
-    <table id="activeTabs" class="table-striped table table-bordered">
+    <table class="table">
       <thead>
         <tr>
           <th class="narrowColumn"><img src="img/lock.png"/></th>
@@ -79,18 +80,17 @@
           <th>Tab</th>
           <th class="countdownColumn">Closing in</th>
         </tr>
+      </thead>
+      <tbody>
         <tr ng-repeat="tab in range | filter:search">
-          <!-- TODO checkbox lock -->
           <td><input type="checkbox"></td>
           <td><img class="favicon" src="{{tab.favIconUrl}}"></td>
-          <td>{{tab.url}}</td>
+          <td>{{tab.title}}</td>
           <td countdown="{{tab.scheduledTime}}"></td>
         </tr>
-        <tbody>
 
-        </tbody>
-      </table>
-    </div>
+      </tbody>
+    </table>
     </tab>
 
     <tab heading="Options" ng-controller="settingsCtrl">

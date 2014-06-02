@@ -118,6 +118,12 @@ angular.module('tabmanager', ['xc.indexedDB'])
     getAll: function() {
       return $indexedDB.objectStore(OBJECT_STORE_NAME).getAll();
     },
+    remove: function(tab) {
+      return $indexedDB.objectStore(OBJECT_STORE_NAME).delete(tab.id)
+      .then(function(e) {
+        $log.log('corral.remove', e);
+      });
+    },
     reopen: function(tab) {
       return $indexedDB.objectStore(OBJECT_STORE_NAME).delete(tab.id)
       .then(function(e) {

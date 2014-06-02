@@ -55,11 +55,11 @@ angular.module('tabWranglerApp', ['tabmanager', 'ui.bootstrap'])
           '<div class="input-group-btn open">' +
             '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-click="dropdown = !dropdown">Order by <span class="caret"></span></button>' +
             '<ul class="dropdown-menu pull-right" ng-show="dropdown">' +
-              //'<li ng-repeat="property in properties"><a href="">{{property}}</a></li>' +
-              '<li><a href="">property</a></li>' +
-              '<li><a href="">property1</a></li>' +
-              '<li><a href="">property2</a></li>' +
-              '<li><a href="">property3</a></li>' +
+              '<li><a href="">title</a></li>' +
+              '<li><a href="">url</a></li>' +
+              '<li><a href="">favicon</a></li>' +
+              '<li><a href="">tab</a></li>' +
+              '<li><a href="">timestamp</a></li>' +
             '</ul>' +
           '</div>' +
         '</div>' +
@@ -70,32 +70,51 @@ angular.module('tabWranglerApp', ['tabmanager', 'ui.bootstrap'])
     //}
   };
 })
+// Manage closed tabs
 .controller('corralCtrl', function($scope, corral) {
   $scope.corral = [];
   // TODO: should this be limited with pagination?
   corral.getAll().then(function(result) {
     $scope.corral = result;
   });
-  // Restore tabs from the corral
+  // Discard tab
+  $scope.remove = function(index) {
+    // Remove from the database
+    corral.remove($scope.corral[index])
+    .then(function() {
+      // Remove from the popup
+      $scope.corral.splice(index,1);
+    });
+  };
+  // Restore tab from the corral
   $scope.reopen = function(index) {
     corral.reopen($scope.corral[index]);
   };
 })
+// Manage open tabs
 .controller('rangeCtrl', function($scope, $log, range) {
   $scope.range = [];
-  range.getAll().then(function(result) {
+  range.getAll()
+  .then(function(result) {
     $log.log('rangeCtrl', result);
     $scope.range = result;
   }, function(result) {
     $log.error('rangeCtrl', result);
   });
 })
+// Manage settings
 .controller('settingsCtrl', function($scope, settings) {
   settings.getAll().then(function(result) {
     $scope.tab = result;
   });
   $scope.addLock = function(regexp) {
-    // TODO add validation
+    // Check regexp is valid
+    try {
+      new RegExp(regexp);
+    } catch(e) {
+      // TODO: alert the user the regexp is invalid
+      return;
+    }
     $scope.tab.autolock.push(regexp);
     // Clear the input so the filter won't hide all the locks
     $scope.regexp = '';
