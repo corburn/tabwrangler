@@ -166,7 +166,7 @@ angular.module('tabmanager', ['xc.indexedDB'])
     },
     getAll: function() {
       $log.log('range.getAll');
-      // Return a promise with an array of tabs that have alarms set
+      // Return a promise for an array of tabs that have alarms set
       var deferred = $q.defer();
       chrome.alarms.getAll(callback(deferred));
       return deferred.promise.then(function(alarms) {
@@ -219,13 +219,5 @@ angular.module('tabmanager', ['xc.indexedDB'])
         }
       });
     },
-    upsert: function(settings) {
-      $log.log('range.upsert', settings);
-      var deferred = $q.defer();
-      // If an error occures, it would most likely be MAX_SUSTAINED_WRITE_OPERATIONS_PER_MINUTE exceeded
-      // See chrome API documentation for details
-      chrome.storage.sync.set(settings, callback(deferred));
-      return deferred.promise;
-    }
   };
 });
