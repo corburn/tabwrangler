@@ -2,20 +2,6 @@
 
 'use strict';
 
-function notifyError(message) {
-  chrome.notifications.getPermissionLevel(function(permission) {
-    if (permission !== 'granted') {
-      return;
-    }
-  });
-  chrome.notifications.create(null, {
-    type: 'basic',
-    iconUrl: 'img/icon48.png',
-    title: 'Error',
-    message: message
-  });
-}
-
 // TODO: the ng module may be unnecessary
 angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event(corral, range) {
   function onStartup(details) {
@@ -24,6 +10,8 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
     } else {
       console.log('eventPage.onStartup received onStartup event');
     }
+    // Clear current tabs from previous session
+    chrome.storage.local.set({current:{}});
     // TODO: This was added because the alarms from the previous session were not being cleared.
     // The problem may go away when the onStartup() call below that is being used during development
     // is removed
@@ -39,7 +27,7 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
 
   // TODO: This should be removed when the program is ready to rely on the onStartup and onInstalled events
   // It here to make it easier to simulate these events
-  onStartup();
+  //onStartup();
 
   // onAlarm handles alarms that signal it is time to close a tab
   function onAlarm(alarm) {
@@ -51,14 +39,12 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
       tabId = parseInt(alarm.name);
     } catch (err) {
       console.error(errMsg, err);
-      notifyError(errMsg + err);
       return;
     }
     // Lookup tab with tabId
     chrome.tabs.get(tabId, function(tab) {
       if (chrome.runtime.lastError) {
         console.error(errMsg, chrome.runtime.lastError);
-        notifyError(errMsg + chrome.runtime.lastError);
         return;
       } else {
         // Add tab to the database first to ensure tabs aren't lost on error
@@ -67,7 +53,6 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
           chrome.tabs.remove(tabId, function() {
             if(chrome.runtime.lastError) {
               console.error(errMsg, chrome.runtime.lastError);
-              notifyError(errMsg + chrome.runtime.lastError);
               // Abort transaction on error
               this.abort();
             }
@@ -103,13 +88,26 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
           angular.forEach(tabs, action);
         }
         // Clear the alarm from the tab that triggered the event; it is probably active
+        console.log('minThreshold triggered by', tab);
         range.clearAlarm(tab);
       });
     };
   }
   chrome.tabs.onDetached.addListener(minThreshold('oldWindowId', range.clearAlarm));
   chrome.tabs.onAttached.addListener(minThreshold('newWindowId', range.resetAlarm));
-  chrome.tabs.onCreated.addListener(minThreshold('onCreated', range.resetAlarm));
+
+  chrome.tabs.onCreated.addListener(function(tab) {
+    console.log('onCreated');
+    if (tab.url !== 'chrome://newtab/') {
+      // If this tab is in the corral, remove it
+      corral.find('url', tab.url).then(function(tab) {
+        if(tab) {
+          corral.remove(tab);
+        }
+      });
+    }
+    minThreshold('onCreated', range.resetAlarm);
+  });
 
   // Fired just before the event page is unloaded
   // Asynchronous events are not guaranteed to complete
@@ -131,6 +129,7 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
   // Register tab event handlers
   //chrome.tabs.onUpdated.addListener(log('onUpdated'));
   //chrome.tabs.onMoved.addListener(log('onMoved'));
+
   // Clear alarm for the current tab and reset alarm for the previous tab
   chrome.tabs.onActivated.addListener(function(activeInfo) {
     var windowId = activeInfo.windowId.toString();
@@ -140,11 +139,10 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
     chrome.storage.local.get(query, function(items) {
       if (chrome.runtime.lastError) {
         console.error('onActivated', chrome.runtime.lastError);
-        notifyError('onActivated' + chrome.runtime.lastError);
       }
       if (items.current[windowId] !== tabId) {
-        range.resetAlarm(items.current[windowId]);
         console.log('onActivated windowId:', windowId, 'tabId', items.current[windowId], '=>', tabId);
+        range.resetAlarm(items.current[windowId]);
       } else {
         console.log('onActivated windowId:', windowId, 'tabId null =>', tabId);
       }
@@ -152,8 +150,9 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
     });
     range.clearAlarm(tabId);
   });
+
   //chrome.tabs.onHighlighted.addListener(log('onHighlighted'));
-  chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+  chrome.tabs.onRemoved.addListener(function(tabId/*, removeInfo*/) {
     console.log('chrome.tabs.onRemoved', tabId);
     range.clearAlarm(tabId);
   });

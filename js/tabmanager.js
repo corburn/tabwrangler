@@ -118,6 +118,9 @@ angular.module('tabmanager', ['xc.indexedDB'])
     getAll: function() {
       return $indexedDB.objectStore(OBJECT_STORE_NAME).getAll();
     },
+    find: function(keyOrIndex, keyIfIndex) {
+      return $indexedDB.objectStore(OBJECT_STORE_NAME).find(keyOrIndex, keyIfIndex);
+    },
     remove: function(tab) {
       return $indexedDB.objectStore(OBJECT_STORE_NAME).delete(tab.id)
       .then(function(e) {
@@ -140,7 +143,6 @@ angular.module('tabmanager', ['xc.indexedDB'])
   return {
     addAll: function() {
       var deferTabs = $q.defer();
-      var _settings = {};
 
       // Should only be called once onStartup
       if (calledOnce) {
@@ -158,21 +160,21 @@ angular.module('tabmanager', ['xc.indexedDB'])
       ])
       // Filter tabs matching the autolock patterns
       // TODO: what if a pattern is not a valid regexp?
+      // @param results an array contains the settings object and tabs array
       .then(function(results) {
-        _settings = results[0];
-        var regexp = new RegExp(_settings.autolock.join('|'));
-        var filteredTabs = [];
-        filteredTabs = filterFilter(results[1], function(tab) {
+        var regexp = new RegExp(results[0].autolock.join('|'));
+        results[1] = filterFilter(results[1], function(tab) {
           return !regexp.test(tab.url);
         });
-        return filteredTabs;
+        return results;
       })
       // Start timers on all tabs
       // TODO: Filter tabs in windows with less than settings.min tabs
-      .then(function(tabs) {
-        $log.log('range.addAll alarms', tabs);
-        angular.forEach(tabs, function(value) {
-          chrome.alarms.create(value.id.toString(), {delayInMinutes: _settings.minutesInactive});
+      // @param results an array containing the settings object and filtered tabs array
+      .then(function(results) {
+        $log.log('range.addAll alarms', results[1]);
+        angular.forEach(results[1], function(value) {
+          chrome.alarms.create(value.id.toString(), {delayInMinutes: results[0].minutesInactive});
         });
       });
     },
@@ -200,8 +202,8 @@ angular.module('tabmanager', ['xc.indexedDB'])
     },
     clearAlarm: function(tab) {
       // tab can be either a Tab object or tabId number
-      chrome.alarms.clear((tab.id || tab).toString());
       $log.log('range.clearAlarm', tab);
+      chrome.alarms.clear((tab.id || tab).toString());
     },
     resetAlarm: function(tab) {
       var deferTab = $q.defer();
