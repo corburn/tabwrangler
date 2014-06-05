@@ -1,9 +1,9 @@
-/* global angular */
+/* global angular, Promise */
 
 'use strict';
 
 // TODO: the ng module may be unnecessary
-angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event(corral, range) {
+angular.injector(['ng', 'tabmanager']).invoke(['settings', 'corral', 'range', function event(settings, corral, range) {
   function onStartup(details) {
     if (details) {
       console.log('eventPage.onStartup received onInstalled event', details);
@@ -135,19 +135,47 @@ angular.injector(['ng', 'tabmanager']).invoke(['corral', 'range', function event
     var windowId = activeInfo.windowId.toString();
     var tabId = activeInfo.tabId;
     var query = JSON.parse('{ "current": { "' + windowId + '": ' + tabId + '} }');
-    // Use local storage to remember previous tab for each window and avoid sync quota limit
-    chrome.storage.local.get(query, function(items) {
-      if (chrome.runtime.lastError) {
-        console.error('onActivated', chrome.runtime.lastError);
-      }
-      if (items.current[windowId] !== tabId) {
-        console.log('onActivated windowId:', windowId, 'tabId', items.current[windowId], '=>', tabId);
-        range.resetAlarm(items.current[windowId]);
+    var deferPreviousTab = new Promise(function(resolve, reject) {
+      // Use local storage to remember previous tab for each window and avoid sync quota limit
+      chrome.storage.local.get(query, function(items) {
+        if (chrome.runtime.lastError) {
+          reject(Error(chrome.runtime.lastError));
+        } else {
+          resolve(items);
+        }
+      });
+    });
+    var deferTabCount = new Promise(function(resolve, reject) {
+      chrome.tabs.query({windowId: activeInfo.windowId, windowType: 'normal'}, function(tabs) {
+        if (chrome.runtime.lastError) {
+          reject(Error(chrome.runtime.lastError));
+        } else {
+          resolve(tabs.length);
+        }
+      });
+    });
+    Promise.all([settings.getMin(), deferTabCount, deferPreviousTab])
+    .then(function(results) {
+      var min = results[0].min;
+      var count = results[1];
+      var tab = results[2];
+      // Log event
+      if (tab.current[windowId] !== tabId) {
+        console.log('onActivated windowId:', windowId, 'tabId', tab.current[windowId], '=>', tabId);
       } else {
         console.log('onActivated windowId:', windowId, 'tabId null =>', tabId);
       }
-      chrome.storage.local.set(query);
+      // Reset alarm for the previous tab if there are at least settings.min tabs
+      if (count > min) {
+        console.log('onActivated resetAlarm', tabId, 'count', count, '> min', min);
+        range.resetAlarm(tab.current[windowId]);
+      } else {
+        console.log('onActivated', tabId, 'count', count, '< min', min);
+      }
     });
+
+    chrome.storage.local.set(query);
+    // Clear alarm for the current tab
     range.clearAlarm(tabId);
   });
 
