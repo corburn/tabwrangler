@@ -85,55 +85,60 @@ angular.module('tabmanager', ['xc.indexedDB'])
     }
   };
 })
-.factory('corral', function($q, $log, $indexedDB, settings) {
+// The add and remove functions have a side-effect of setting the extension badge text
+.factory('corral', function($q, $log, $indexedDB) {
   return {
     addAll: function(data) {
+      var me = this;
       // Insert tabs into the database
-      return $indexedDB.objectStore(OBJECT_STORE_NAME).upsert(data);
-      // Get the database count and check if it should be displayed on the extension badge.
-      // Combining them allows the count to piggyback on the upsert IDBRequest to avoid an
-      // unfinished request error trying to make another request during this transaction.
-      /*
-       *.then(function(e) {
-       *  $log.log('corral.addAll upsert', e);
-       *  return $q.all(settings.getShowBadgeCount(), e.count());
-       *})
-       * Either display the count or clear the badge text with an empty string
-       *.then(function(result) {
-       *  $log.log('corral.addAll showBadgeCount and count', result);
-       *  if (!result[0].showBadgeCount) {
-       *    return;
-       *  }
-       *  // Use a default count if the result is too big to display
-       *  if(result[1].result < 999) {
-       *    text = result[1].result.toString();
-       *  } else {
-       *    text = '999+';
-       *  }
-       *  $log.log('corral.addAll set badge text', text);
-       *  chrome.browserAction.setBadgeText({text: text});
-       *});
-       */
+      return $indexedDB.objectStore(OBJECT_STORE_NAME).upsert(data)
+      .then(function(tabs) {
+        me.setBadge();
+        return tabs;
+      });
     },
     getAll: function() {
-      return $indexedDB.objectStore(OBJECT_STORE_NAME).getAll();
+      var me = this;
+      return $indexedDB.objectStore(OBJECT_STORE_NAME).getAll()
+      .then(function(tabs) {
+        me.setBadge();
+        return tabs;
+      });
     },
     find: function(keyOrIndex, keyIfIndex) {
       return $indexedDB.objectStore(OBJECT_STORE_NAME).find(keyOrIndex, keyIfIndex);
     },
     remove: function(tab) {
+      var me = this;
       return $indexedDB.objectStore(OBJECT_STORE_NAME).delete(tab.id)
       .then(function(e) {
         $log.log('corral.remove', e);
+        me.setBadge();
+        return e;
       });
     },
     reopen: function(tab) {
-      return $indexedDB.objectStore(OBJECT_STORE_NAME).delete(tab.id)
+      return this.remove(tab)
       .then(function(e) {
         var deferred = $q.defer();
         $log.log('corral.reopen', e);
         chrome.tabs.create({url: tab.url}, callback(deferred));
         return deferred.promise;
+      });
+    },
+    setBadge: function() {
+      return $indexedDB.objectStore(OBJECT_STORE_NAME).count()
+      .then(function(count) {
+        $log.log('corral.setBadge', count);
+        var text;
+        // Use a default count if the result is too big to display
+        if(count < 999) {
+          text = count.toString();
+        } else {
+          text = '999+';
+        }
+        //$log.log('corral.setBadge', count, typeof count);
+        chrome.browserAction.setBadgeText({text: text});
       });
     }
   };

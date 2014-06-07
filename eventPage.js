@@ -18,6 +18,8 @@ angular.injector(['ng', 'tabmanager']).invoke(['settings', 'corral', 'range', fu
     chrome.alarms.clearAll();
     // Start timers on all open tabs
     range.addAll();
+    // Set badge text to corral tab count
+    corral.setBadge();
   }
   // Fired when a profile that has this extension installed first starts up
   // Does not fire when an incognito profile is started
@@ -74,15 +76,25 @@ angular.injector(['ng', 'tabmanager']).invoke(['settings', 'corral', 'range', fu
   * or a tabId number and attachInfo/detachInfo object
   */
   function minThreshold(key, action) {
-    console.error('TODO: fix minThreshold hardcoded min');
-    var min = 5;
     return function(tab, info) {
       // The onCreated event doesn't pass an info object like the others
       if (key === 'onCreated') {
         info = {'onCreated': tab.windowId};
       }
-      // Get all tabs from the tab's window
-      chrome.tabs.query({windowId: info[key], windowType: 'normal'}, function(tabs) {
+      var deferTabs = new Promise(function(resolve, reject) {
+        // Get all tabs from the tab's window
+        chrome.tabs.query({windowId: info[key], windowType: 'normal', pinned: false, active: false}, function(tabs) {
+          if (chrome.runtime.lastError) {
+            reject(Error(chrome.runtime.lastError));
+          } else {
+            resolve(tabs);
+          }
+        });
+      });
+      Promise.all([settings.getMin(), deferTabs])
+      .then(function(results) {
+        var min = results[0].min;
+        var tabs = results[1];
         // Apply the action to all the tabs
         if ((key === 'oldWindowId' && tabs.length <= min) || tabs.length === min+1) {
           angular.forEach(tabs, action);
@@ -95,7 +107,6 @@ angular.injector(['ng', 'tabmanager']).invoke(['settings', 'corral', 'range', fu
   }
   chrome.tabs.onDetached.addListener(minThreshold('oldWindowId', range.clearAlarm));
   chrome.tabs.onAttached.addListener(minThreshold('newWindowId', range.resetAlarm));
-
   chrome.tabs.onCreated.addListener(function(tab) {
     console.log('onCreated');
     if (tab.url !== 'chrome://newtab/') {
@@ -146,7 +157,7 @@ angular.injector(['ng', 'tabmanager']).invoke(['settings', 'corral', 'range', fu
       });
     });
     var deferTabCount = new Promise(function(resolve, reject) {
-      chrome.tabs.query({windowId: activeInfo.windowId, windowType: 'normal'}, function(tabs) {
+      chrome.tabs.query({windowId: activeInfo.windowId, windowType: 'normal', pinned: false}, function(tabs) {
         if (chrome.runtime.lastError) {
           reject(Error(chrome.runtime.lastError));
         } else {

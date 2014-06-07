@@ -22,7 +22,7 @@
 
     <!-- bower:js -->
     <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/angularjs-indexedDB/src/indexeddb.js"></script>
+    <script src="bower_components/angular-indexedDB/src/indexeddb.js"></script>
     <script src="bower_components/angular-bootstrap/ui-bootstrap.js"></script>
     <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
     <!-- endbower -->
@@ -84,7 +84,9 @@
       <tbody>
         <tr ng-repeat="tab in range | filter:search">
           <td><input type="checkbox"></td>
-          <td><img class="favicon" src="{{tab.favIconUrl}}"></td>
+          <td ng-mouseenter="hover=true" ng-mouseleave="hover=false" ng-click="remove($index)">
+            <span class="glyphicon glyphicon-remove" ng-show="hover"></span>
+            <img class="favicon" src="{{tab.favIconUrl}}" ng-hide="hover"></td>
           <td>{{tab.title}}</td>
           <td countdown="{{tab.scheduledTime}}" timeout="update()"></td>
         </tr>
@@ -127,15 +129,24 @@
 
         <div class="checkbox">
           <label for="purgeClosedTabs">
-            <input type="checkbox" id="purgeClosedTabs" ng-model="tab.purgeClosedTabs" ng-click="upsert(tab)">
+            <input type="checkbox" id="purgeClosedTabs" disabled ng-model="tab.purgeClosedTabs" ng-click="upsert(tab)">
             Clear closed tabs list on quit
           </label>
         </div>
 
+        <!--
+           -<div class="checkbox">
+           -  <label for="showBadgeCount">
+           -    <input type="checkbox" id="showBadgeCount" disabled ng-model="tab.showBadgeCount" ng-click="upsert(tab)">
+           -    Show # of closed tabs in url bar
+           -  </label>
+           -</div>
+           -->
+
         <div class="checkbox">
-          <label for="showBadgeCount">
-            <input type="checkbox" id="showBadgeCount" ng-model="tab.showBadgeCount" ng-click="upsert(tab)">
-            Show # of closed tabs in url bar
+          <label for="preventDuplicates">
+            <input type="checkbox" id="preventDuplicates" disabled ng-model="tab.preventDuplicates" ng-click="upsert(tab)">
+            Allow tabs to have the same URL
           </label>
         </div>
 

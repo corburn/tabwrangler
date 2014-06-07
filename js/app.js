@@ -100,6 +100,16 @@ angular.module('tabWranglerApp', ['tabmanager', 'ui.bootstrap'])
 // Manage open tabs
 .controller('rangeCtrl', function($scope, $log, range) {
   $scope.range = [];
+  // Discard tab
+  $scope.remove = function(index) {
+    // TODO: calls to the chrome api should be wrapped by the tabmanager module
+    chrome.tabs.remove($scope.range[index].id, function() {
+      // Remove from the database
+      range.clearAlarm($scope.range[index]);
+      // Remove from the popup
+      $scope.range.splice(index,1);
+    });
+  };
   $scope.update = function() {
     $log.log('rangeCtrl.update');
     range.getAll()

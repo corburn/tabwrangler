@@ -1,6 +1,6 @@
 {
   "background": {
-    "scripts": ["bower_components/angular/angular.js", "bower_components/angularjs-indexedDB/src/indexeddb.js", "js/tabmanager.js", "eventPage.js"],
+    "scripts": ["bower_components/angular/angular.js", "bower_components/angular-indexedDB/src/indexeddb.js", "js/tabmanager.js", "eventPage.js"],
     "persistent": false
   },
   "manifest_version": 2,
